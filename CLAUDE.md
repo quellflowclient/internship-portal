@@ -27,5 +27,8 @@ Instructions for AI coding sessions in this folder.
 - Brand spelling is **Quellflow** (D-15); normalise "QuellFlow" from playbook imports.
 - Launch tracks: AA, GA, FS, SE, QA, DO, ML (D-03).
 
-## Commands (fill in when scaffolded)
-- `pnpm dev` · `pnpm test` · `pnpm lint` · `supabase db reset` · `supabase gen types typescript --local > src/lib/database.types.ts`
+## Commands
+- `pnpm dev` · `pnpm build` · `pnpm lint` · `pnpm typecheck` · `pnpm test`
+- `pnpm test` runs RLS/function tests against **PGlite** (in-process Postgres, `tests/db/harness.ts` stubs Supabase auth) – no Docker needed. Add a test for every new policy.
+- With Docker running: `pnpm db:start` · `pnpm db:reset` · `pnpm db:types`
+- Server actions redirect back with `?ok=` / `?error=` (see `src/server/guard.ts`); pages render `<Flash />`.

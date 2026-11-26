@@ -2,7 +2,23 @@
 
 One portal to run Quellflow's internship and training programmes end to end: applicants → selection → onboarding → daily work / courses → mentor reviews → projects → completion → **verifiable documents** (offer letter, certificate, experience letter, LOR).
 
-> **Status:** Planning complete (v0.1, 26-Nov-2026). No application code yet. Read the docs below, close the items in [16_DECISIONS_LOG.md](docs/16_DECISIONS_LOG.md), then start Phase 1 in [13_ROADMAP.md](docs/13_ROADMAP.md).
+> **Status (26-Nov-2026):** Phase 1 code done locally – schema, RLS, auth, admin (applicants, programs, users, settings), Google Form import API. Waiting for Supabase project access to connect and deploy. See [13_ROADMAP.md](docs/13_ROADMAP.md).
+
+## Getting started (developers)
+```bash
+pnpm install
+cp .env.example .env.local      # fill in Supabase URL/keys + IMPORT_SECRET
+pnpm test                       # 47 tests: RLS (PGlite) + unit – no Docker needed
+pnpm dev                        # http://localhost:3000
+```
+
+### Connect a Supabase project (once access is shared)
+1. `npx supabase login` → `npx supabase link --project-ref <ref>`
+2. `npx supabase db push` (applies `supabase/migrations/*`), then run `supabase/seed.sql` in the SQL editor.
+3. Auth → Providers → Google: add OAuth client ID/secret; Auth → URL configuration: site URL + `<site>/auth/callback`.
+4. Sign in once with the first partner's Google account, then in SQL editor: `select public.bootstrap_super_admin('<email>');`
+5. Admin → Settings: check org details, academic year and numbering formats.
+6. Google Apps Script: add `scripts/apps-script/portal_sync.gs`, set `PORTAL_IMPORT_URL` + `PORTAL_IMPORT_SECRET`, run `testPortalConnection`, then `backfillPortal`.
 
 ## Docs index
 

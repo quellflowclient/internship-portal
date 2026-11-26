@@ -56,10 +56,13 @@ Tokens available in patterns: `{AY}` academic year label · `{YYYY}` · `{ROLE}`
 | `assignments` | module_id, title, brief_md, rubric jsonb, max_points, due_offset_days |
 
 ## Delivery
-| `programs` | track, role_code, duration, playbook_id (A) / course_id (B), default_fee_inr, gst_rate, active – fee is internal/admin-only (never shown on public pages) |
+| `programs` | name, track, role_code, duration, playbook_id (A) / course_id (B), active – unique(track, role_code, duration) |
+| `program_pricing` | program_id (pk), default_fee_inr, gst_rate – **admin-only table** (RLS) so fees never leak to mentors/students |
+| `invitations` | email, role, applicant_id, invited_by, profile_id, accepted_at, revoked_at – one pending invite per email; consumed by `handle_new_user()` on first sign-in |
 | `batches` | program_id, code (e.g. AA-2701), name, start_date, end_date, capacity, live_slot (text), status |
 | `batch_mentors` | batch_id, mentor_id, is_backup |
-| `enrollments` | profile_id, applicant_id, batch_id, program_id, status, **engagement_type** (free/paid/stipend), stipend_amount_inr, stipend_frequency (monthly/one_time), fee_amount_inr (override of programme default), start_date, end_date, weekly_hours, working_days, mentor_id, backup_mentor_id, project_brief_id, reduced_scope_note, review_slots, approved_tools, budget_limit_inr, handover_owner, route, offer_accepted_at, playbook_version |
+| `enrollment_terms` | enrollment_id (pk), **engagement_type** (free/paid/stipend), stipend_amount_inr, stipend_frequency (monthly/one_time), fee_amount_inr – **separate admin-only table** (RLS: admin + that candidate only; mentors excluded) (D-04) |
+| `enrollments` | profile_id (null until invite accepted), applicant_id, batch_id, program_id, status, start_date, end_date, weekly_hours, working_days, mentor_id, backup_mentor_id, project_brief_id, reduced_scope_note, review_slots, approved_tools, budget_limit_inr, handover_owner, route, offer_accepted_at, playbook_version |
 | `diagnostic_scores` | enrollment_id, stage (day1/day2/day7/midpoint/final), dimension_code, score 0–4, evidence_url, observation, scored_by |
 | `scope_changes` | enrollment_id, removed, reason, new_checks, decided_by, at |
 | `tasks` | enrollment_id, milestone_id null, title, description, owner_id, due_date, acceptance_check, status, evidence_url, mentor_decision, next_action |

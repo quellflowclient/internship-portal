@@ -8,14 +8,16 @@
 | **3 – Track B** | Courses/lessons/quizzes/assignments; grading; Razorpay + invoices + enrollment letter; capstone; certificates for Track B | First paid batch enrolled and paid via portal | 2–3 weeks |
 | **4 – Scale** | n8n reminders (WhatsApp/email), analytics, LOR workflow, DSC signing, college/TPO read-only view, white-label prep | Defined per batch feedback | ongoing |
 
-## Phase 1 task list
-- [ ] Create Supabase projects (staging, prod) in Mumbai region
-- [ ] `pnpm create next-app` + Tailwind + shadcn/ui + ESLint/Prettier + Vitest + Playwright
-- [ ] Migrations: enums, profiles, roles_catalog, applicants(+history), programs, batches, batch_mentors, enrollments, audit_log, helpers, RLS, grants
-- [ ] Auth: Google provider, invite flow, role claim hook, protected route groups
-- [ ] `/api/applicants/import` + HMAC + Apps Script change + backfill from Sheet
-- [ ] Admin: applicants table, filters, detail, status change, convert → enrolment
-- [ ] RLS tests (see 14)
+## Phase 1 task list (status 26-Nov-2026)
+- [ ] Create Supabase projects (staging, prod) in Mumbai region – **waiting for owner access**
+- [x] Next.js 15 + TypeScript + Tailwind v4 + ESLint + Vitest (custom UI kit instead of shadcn CLI; Playwright later)
+- [x] Migrations: enums, org_settings, roles_catalog, profiles, invitations, numbering_schemes, document_sequences, signatories, applicants(+history), programs, program_pricing, batches, batch_mentors, enrollments, enrollment_terms, audit_log, helpers, RLS, grants
+- [x] Auth: Google + email link, invite-only activation (`handle_new_user`), middleware, role-guarded route groups (admin / mentor / student)
+- [x] `/api/applicants/import` + HMAC (timestamped) + Apps Script add-on (`scripts/apps-script/portal_sync.gs`) + backfill
+- [x] Admin: overview, applicants (filters, search, pagination, detail, status, notes, history), convert → enrolment with engagement type, programs & batches, mentor assignment, users & invitations, settings (org, academic year, numbering with live preview, signatories)
+- [x] RLS tests (PGlite, 27 cases) + unit tests (20 cases)
+- [ ] Connect real Supabase: `supabase link`, `supabase db push`, Google OAuth client, env vars, bootstrap first super_admin
+- [ ] Deploy (hosting + domain from owner)
 
 ## Definition of done (every feature)
 Spec in docs updated · migration with RLS · server-side validation · mobile layout checked at 360px · tests (unit + RLS where data access changes) · audit log for sensitive actions · no secrets in client bundle.

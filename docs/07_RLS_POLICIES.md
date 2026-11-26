@@ -54,7 +54,9 @@ create policy "profiles: mentors read their interns" on profiles for select to a
 create policy "profiles: self update" on profiles for update to authenticated
   using (id = (select auth.uid())) with check (id = (select auth.uid()) and role = (select role from profiles where id = (select auth.uid())));
 create policy "profiles: admin write" on profiles for all to authenticated using (is_admin()) with check (is_admin());
--- role escalation: column-level – revoke update(role) from authenticated; only an admin RPC changes role.
+-- role escalation: a column-level REVOKE does NOT override a table-level GRANT in Postgres.
+-- So: revoke update on profiles from authenticated; grant update (editable columns…) to authenticated;
+-- role / is_active / email change only via the admin_set_user_role() RPC. (Caught by tests/db/rls.test.ts.)
 
 -- applicants: admin only (+ mentors read shortlisted of their role – optional view)
 create policy "applicants: admin" on applicants for all to authenticated using (is_admin()) with check (is_admin());
