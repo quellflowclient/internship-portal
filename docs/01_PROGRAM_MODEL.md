@@ -3,9 +3,8 @@
 ## Tracks
 | | **A – Merit Internship** | **B – Paid Training + Internship** | **C – Self-paced** (later) |
 |---|---|---|---|
-| For | Strong candidates, priority **AI Automation, AI/ML, BDA** | Students needing college internship / certificate / project | High volume, low touch |
-| Student pays | No | Programme fee (+GST) | Low fee |
-| Stipend | Minimal stipend or unpaid (decided per offer) | No | No |
+| For | Strong candidates (any launch track; priority AI Automation, GenAI, AI/ML) | Students needing college internship / certificate / project | High volume, low touch |
+| Money terms | Set per candidate by admin: **engagement type** `free` / `paid` / `stipend` (see below) | Usually `paid` (admin can set `free` for scholarships) | Low fee |
 | Content | Role playbook, real/supervised Quellflow work | Video course + playbook-style capstone in sandbox | Video course + assignments |
 | Durations | 45 days · 90 days · 6 months (playbook) | 45 days · 90 days | Self-paced (access window) |
 | Mentor time | 3–4 h / intern / week (playbook) | Weekly live session per batch + async review | Monthly Q&A |
@@ -15,6 +14,24 @@
 | Documents | Offer letter, agreement, certificate, **experience letter**, relieving letter, LOR (earned) | Enrollment letter, invoice, completion certificate, project certificate, LOR (top performers only) | Course certificate |
 
 Durations follow the playbooks: 45 days ≈ 6.5 weeks, 90 days ≈ 13 weeks, 6 months ≈ 26 weeks. Baseline 5 working days × 4 hours.
+
+## Engagement type (decided per candidate by admin – D-04)
+Separate from the track (which decides *how* the programme runs), the admin sets each enrolment's **engagement type** in the portal:
+
+| Engagement type | Meaning | Shown where |
+|---|---|---|
+| `free` | No fee, no stipend | Offer / enrolment letter only |
+| `paid` | Candidate pays programme fee (amount set by admin per enrolment or programme default) | Enrolment letter, payment page, invoice |
+| `stipend` | Quellflow pays a stipend (amount + frequency set by admin) | Offer letter only |
+
+Rules:
+- **Never advertised publicly.** Form, posters, WhatsApp messages, brochure and FAQ do not mention stipend or fee amounts; candidates learn their terms only from their own offer/enrolment.
+- Typical mapping (not enforced): Track A → `free` or `stipend`; Track B → `paid`. Admin may override (e.g. scholarship = Track B + `free`).
+- Changing engagement type after an offer is issued requires re-issuing the offer (new version) and is audit-logged.
+
+## Launch tracks (D-03)
+AI Automation (AA) · GenAI (GA) · Full Stack (FS) · SEO (SE) · QA / Software Testing (QA) · DevOps (DO) · AI/ML (ML).
+Playbooks exist for AA, FS (+BE), SE, DO, ML. **GA and QA playbooks must be written** (D-18).
 
 ## Lifecycle (both tracks)
 `applicant → shortlisted → (A: diagnostic / interview | B: counselling) → offer/enrolment → active → midpoint review → final demo → completion record → documents issued → alumni`

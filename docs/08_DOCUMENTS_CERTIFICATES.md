@@ -11,11 +11,15 @@
 | Certificate of Excellence | A, B | Grade = Distinction / mentor nomination | super_admin | same series, type differs |
 | Project Completion Certificate | B (college) | Capstone accepted | admin | same series |
 | Experience letter | **A only** | Completion accepted | super_admin | `QF/EXP/2627/0001` |
-| Relieving letter | A (stipend) | End of engagement | admin | `QF/REL/2627/0001` |
+| Relieving letter | A (engagement `stipend`) | End of engagement | admin | `QF/REL/2627/0001` |
 | Letter of Recommendation | A, B top performers | Student request → mentor recommend | super_admin | `QF/LOR/2627/0001` |
 | Grade / evaluation report | A, B | Completion | admin | attached to certificate code |
 
-`2627` = academic year 2026–27 (Jun–May, decision D-05). Sequences never reuse numbers; voided drafts don't consume a number (number assigned at **issue**).
+Formats above are the **seeded defaults** – every prefix, pattern, padding and the academic year (default 2026–27, June–May → `2627`) is editable in **Admin → Settings → Numbering** (D-05, see `numbering_schemes` in 06). Sequences never reuse numbers; voided drafts don't consume a number (number assigned at **issue**).
+
+**Signatories** come from **Admin → Settings → Signatories** (name, title, signature image, stamp) and are mapped to template positions. Until the owner provides them (D-06), templates render a placeholder block and documents cannot be *issued* (draft/preview only).
+
+**Money terms in documents** follow the enrolment's engagement type (D-04): `stipend` → offer letter states amount + frequency; `free` → "This is an unpaid internship / scholarship seat"; `paid` → enrolment letter references the invoice. No other document shows money.
 
 ## Template variables (all templates)
 `{name}` (profiles.display_name_on_docs) · `{college}` · `{course}` · `{program_name}` · `{track_label}` · `{role_title}` · `{start_date}` · `{end_date}` · `{duration_label}` · `{mode}` · `{weekly_hours}` · `{mentor_name}` · `{project_title}` · `{grade}` · `{stipend}` / `{fee}` · `{doc_number}` · `{code}` · `{issue_date}` · `{verify_url}` · `{qr}` · `{signatory_name}` · `{signatory_title}` · `{signature_image}`
@@ -23,7 +27,7 @@
 ## Layouts (A4)
 **Letterhead (letters):** Q emblem + "Quellflow Technologies LLP", address, LLPIN, website, email · ref no + date · body · signatory block · footer with QR + "Verify at {verify_url}".
 
-**Offer letter:** greeting · role & programme · dates/duration · mode & hours · stipend (or "unpaid internship") · mentor/reporting · responsibilities (from project brief) · conditions: attendance, confidentiality, IP with Quellflow, AI-use disclosure, code of conduct, termination · accept-by date · signatory · acceptance (accepted in portal with timestamp – printed on PDF).
+**Offer letter:** greeting · role & programme · dates/duration · mode & hours · money terms per engagement type (stipend amount / unpaid / scholarship) · mentor/reporting · responsibilities (from project brief) · conditions: attendance, confidentiality, IP with Quellflow, AI-use disclosure, code of conduct, termination · accept-by date · signatory · acceptance (accepted in portal with timestamp – printed on PDF).
 
 **Enrollment letter (B):** "This is to confirm that {name}, {course}, {college}, is enrolled in the Quellflow Training & Internship Programme – {role_title} ({duration_label}, online), batch {batch}, from {start} to {end}, {weekly_hours} hours/week." (colleges accept this as joining letter).
 

@@ -5,13 +5,17 @@
 - Durations aligned with playbooks: **45 days** (≈ 6.5 weeks) and **90 days** (≈ 13 weeks). 6 months stays Track A only.
 - Capstone runs in sandbox/sample data, never on client work.
 
-## Launch tracks (proposal – D-03)
-| Code | Track | Base playbook | Why |
+## Launch tracks (decided – D-03)
+| Code | Track | Base playbook | Note |
 |---|---|---|---|
 | AA | AI Automation & Agents ⭐ | 03_AI_Automation | Quellflow core (n8n, chatbots, voice); flagship |
-| ML | GenAI / AI-ML Apps ⭐ | 05_AI_ML (+ LLM/RAG module) | Highest demand |
+| GA | GenAI Apps ⭐ | **new playbook needed** | LLM APIs, prompting, RAG, evaluation, safety |
 | FS | Full Stack Web Development | 01_Fullstack + 02_Backend | Evergreen |
-| Later | Data Analytics, UI/UX, DevOps, SEO | 04, 07 + new | Expand after first batches |
+| SE | SEO | 07_SEO | Technical + content SEO |
+| QA | QA / Software Testing | **new playbook needed** | Test design, automation (Playwright), bug reporting |
+| DO | DevOps | 04_DevOps | Linux, Docker, CI/CD, monitoring |
+| ML | AI / ML | 05_AI_ML | Data, models, evaluation |
+Later: Data Analytics, UI/UX, Mobile.
 
 ## Course structure (45 days)
 | Week | Lessons (video + notes) | Practice | Graded |
@@ -57,5 +61,5 @@ Top 5% by grade + mentor nomination → Certificate of Excellence and LOR eligib
 - [ ] Mentor answer cues (mentor-only)
 - [ ] Live session agenda per week
 
-## Pricing (decision D-02)
-Fee per track/duration, GST treatment, early-bird/college-group discount, refund window (e.g. full refund before week 1 ends, none after) – to be finalised with CA.
+## Pricing (D-02, admin-controlled)
+Default fee per programme (`programs.default_fee_inr`) and per-enrolment override are set in the admin panel; engagement type `free` allows scholarship seats. Fees are **not published** publicly (D-04) – shared with shortlisted candidates only. GST treatment and refund window to be finalised with CA.

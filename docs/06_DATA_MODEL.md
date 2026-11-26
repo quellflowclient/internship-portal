@@ -5,7 +5,8 @@ Conventions: `id uuid pk default gen_random_uuid()`, `created_at/updated_at time
 ## Enums
 ```sql
 user_role         : super_admin | admin | mentor | student
-program_track     : merit | paid | self_paced                -- A / B / C
+program_track     : merit | paid | self_paced                -- A / B / C (how the programme runs)
+engagement_type   : free | paid | stipend                    -- money terms, set per enrolment by admin (D-04)
 duration_plan     : d45 | d90 | m6
 applicant_status  : new | shortlisted | on_hold | not_now | converted
 enrollment_status : invited | offer_sent | accepted | payment_pending | active | paused | completed | withdrawn | terminated
@@ -22,7 +23,17 @@ payment_status    : created | paid | failed | refunded
 | Table | Key columns |
 |---|---|
 | `profiles` | id (= auth.users.id), role, full_name, display_name_on_docs, email, phone_e164, college, course, year_of_study, photo_path, linkedin, github, is_active |
-| `roles_catalog` | code (`AA`, `FS`, `BE`, `DO`, `ML`, `BD`, `SE`, `FE`, `MA`, `UX`, `GD`, `3D`, `DA`, `QA`, `RD`), name, track_group (AI & Automation / Software / Design / Data / QA / Business / R&D) |
+| `roles_catalog` | code (`AA`, `GA`, `FS`, `BE`, `DO`, `ML`, `BD`, `SE`, `QA`, `FE`, `MA`, `UX`, `GD`, `3D`, `DA`, `RD`), name, track_group (AI & Automation / Software / Design / Data / QA / Business / R&D), is_launch_track (AA, GA, FS, SE, QA, DO, ML = true), form_label (exact text used in the Google Form) |
+
+## Admin settings (everything configurable – D-05)
+| Table | Key columns |
+|---|---|
+| `org_settings` | singleton row: org_name ("Quellflow Technologies LLP"), brand_name ("Quellflow"), address, llpin, website, contact_email, sender_name, sender_email, verify_base_url, logo_path, timezone ('Asia/Kolkata'), academic_year_start_month (default 6 = June), current_academic_year_label (computed or override, e.g. '2627') |
+| `numbering_schemes` | doc_type, pattern (e.g. `QF/OFR/{AY}/{SEQ:4}`, `QF-C-{AY}-{ROLE}-{SEQ:4}`), reset_per_academic_year bool, is_active, updated_by |
+| `signatories` | name, title, signature_path (private storage), stamp_path, is_active, sort |
+| `doc_template_signatories` | template_id, signatory_id, position (left/center/right) |
+
+Tokens available in patterns: `{AY}` academic year label · `{YYYY}` · `{ROLE}` role code · `{TRACK}` A/B · `{SEQ:n}` zero-padded sequence. Changing a pattern affects only documents issued afterwards.
 
 ## Intake
 | `applicants` | candidate_code (QF-2627-0001, unique), form_response_id (unique), email, full_name, phone_e164, city, college, degree, year, role_code, role_other, skills, portfolio_url, prev_internship, cv_url, can_start, hours_per_week, work_mode, extra, submitted_at, status, notes, profile_id (after conversion) |
@@ -45,10 +56,10 @@ payment_status    : created | paid | failed | refunded
 | `assignments` | module_id, title, brief_md, rubric jsonb, max_points, due_offset_days |
 
 ## Delivery
-| `programs` | track, role_code, duration, playbook_id (A) / course_id (B), fee_inr, gst_rate, active |
+| `programs` | track, role_code, duration, playbook_id (A) / course_id (B), default_fee_inr, gst_rate, active – fee is internal/admin-only (never shown on public pages) |
 | `batches` | program_id, code (e.g. AA-2701), name, start_date, end_date, capacity, live_slot (text), status |
 | `batch_mentors` | batch_id, mentor_id, is_backup |
-| `enrollments` | profile_id, applicant_id, batch_id, program_id, status, start_date, end_date, weekly_hours, working_days, mentor_id, backup_mentor_id, project_brief_id, reduced_scope_note, review_slots, approved_tools, budget_limit_inr, handover_owner, route, stipend_inr_month, fee_inr, offer_accepted_at, playbook_version |
+| `enrollments` | profile_id, applicant_id, batch_id, program_id, status, **engagement_type** (free/paid/stipend), stipend_amount_inr, stipend_frequency (monthly/one_time), fee_amount_inr (override of programme default), start_date, end_date, weekly_hours, working_days, mentor_id, backup_mentor_id, project_brief_id, reduced_scope_note, review_slots, approved_tools, budget_limit_inr, handover_owner, route, offer_accepted_at, playbook_version |
 | `diagnostic_scores` | enrollment_id, stage (day1/day2/day7/midpoint/final), dimension_code, score 0–4, evidence_url, observation, scored_by |
 | `scope_changes` | enrollment_id, removed, reason, new_checks, decided_by, at |
 | `tasks` | enrollment_id, milestone_id null, title, description, owner_id, due_date, acceptance_check, status, evidence_url, mentor_decision, next_action |
@@ -68,7 +79,7 @@ payment_status    : created | paid | failed | refunded
 
 ## Documents & money
 | `doc_templates` | type, track, version, name, pdfme_schema jsonb, base_pdf_path, active, created_by |
-| `document_sequences` | type, academic_year ('2627'), last_no |
+| `document_sequences` | scheme_id, academic_year_label, role_code null, last_no – unique(scheme_id, academic_year_label, role_code) |
 | `documents` | type, number (QF/OFR/2627/0001) / code (QF-C-2627-AA-0001) unique, enrollment_id, profile_id, template_id, data jsonb (snapshot of all fields), pdf_path, sha256, dsc_signed bool, status, version, supersedes_id, issued_by, issued_at, approved_by, revoked_by, revoked_at, revoke_reason |
 | `payments` | enrollment_id, razorpay_order_id, razorpay_payment_id, amount_inr, gst_inr, status, invoice_document_id, paid_at, refund_amount, refund_note |
 | `announcements` | scope (all/batch), batch_id, title, body_md, created_by, published_at |
@@ -95,7 +106,8 @@ erDiagram
 ```
 
 ## Database functions
-- `next_document_number(type)` – locks `document_sequences` row, returns formatted number/code.
+- `next_document_number(doc_type, role_code)` – reads active `numbering_schemes` pattern + academic year from `org_settings`, locks the `document_sequences` row, returns the formatted number/code.
+- `academic_year_label(ts)` – e.g. 15-Jan-2027 with start month 6 → `'2627'`.
 - `verify_document(code text)` – `security definer`, returns public fields only.
 - `is_admin()`, `is_super_admin()`, `is_batch_mentor(batch uuid)`, `my_enrollment_ids()` – used in RLS.
 - Trigger: `audit_log` on documents, enrollments, completion_records, payments, profiles.role.

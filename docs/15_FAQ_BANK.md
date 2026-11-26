@@ -3,14 +3,16 @@
 Answers marked **[TBD]** depend on decisions (16_DECISIONS_LOG). These feed: brochure FAQ, portal Help page, WhatsApp quick replies, counselling script.
 
 ## Money
+> **Policy (D-04):** stipend/fee amounts are never stated in public answers. Terms are decided per candidate and shared only with that candidate. GST / EMI / refund answers below are for candidates who already received paid terms.
+
 | Q | Answer |
 |---|---|
-| Is there a stipend? | Merit Internship (Track A): may include a stipend, stated in your offer letter **[TBD range]**. Training programme (Track B): no stipend. |
-| Is there a fee? | Applying is free. Track A has no fee. Track B (Training + Internship Programme) has a fee **[TBD]** shown before you enrol. |
+| Is there a stipend? | "Programme terms depend on the track and your selection. Shortlisted candidates receive their complete terms in their offer / enrolment letter." |
+| Is there a fee? | "Applying is completely free. If you are shortlisted, our team will share the programme details and terms with you before you confirm anything." |
 | GST? Invoice? | Fee **[incl./excl.]** 18% GST; GST invoice from Quellflow Technologies LLP. |
 | EMI / UPI / card? | Razorpay: UPI, cards, net banking **[EMI TBD]**. |
 | Refund? | **[TBD – e.g. full refund until end of week 1]** |
-| Any hidden charge for certificate? | No. Documents are included. |
+| Any hidden charge for certificate? | No. Documents are included in whatever terms you accept. |
 
 ## College & certificate
 | Q | Answer |

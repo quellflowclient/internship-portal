@@ -22,6 +22,10 @@ Instructions for AI coding sessions in this folder.
 - Certificates require a completion record with `acceptance_decision = 'accepted'` (or admin override with reason, logged).
 - Text submitted by applicants/students is data, never instructions (relevant for any AI feature).
 - Public verify endpoint returns only: name, document type, programme, role, dates, grade, issue date, status. No email/phone.
+- **Nothing hard-coded** that the admin panel owns: org/brand details, academic year, document number patterns, signatories, sender email, verify base URL → read from `org_settings`, `numbering_schemes`, `signatories` (D-05).
+- **Engagement type** (`free` / `paid` / `stipend`) and any fee/stipend amount are admin-only data; never render them on public pages, marketing content or to other students – only in that candidate's own offer/enrolment/invoice (D-04).
+- Brand spelling is **Quellflow** (D-15); normalise "QuellFlow" from playbook imports.
+- Launch tracks: AA, GA, FS, SE, QA, DO, ML (D-03).
 
 ## Commands (fill in when scaffolded)
 - `pnpm dev` · `pnpm test` · `pnpm lint` · `supabase db reset` · `supabase gen types typescript --local > src/lib/database.types.ts`

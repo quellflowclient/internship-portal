@@ -13,6 +13,18 @@ The 7 playbooks in `project-docs/` share one template. The portal stores that te
 | BD | BDA | Target segment research and discovery kit | Segment development and supervised pilot kit | Repeatable business development operating system |
 | SE | SEO | Small site audit and improvement kit | Service content cluster and technical improvement | SEO content and technical operating programme |
 
+## Launch tracks (D-03) vs playbooks
+| Launch track | Playbook | Status |
+|---|---|---|
+| AI Automation (AA) | 03_AI_Automation | ✅ ready |
+| GenAI (GA) | — | ❌ to write (LLM apps, prompt design, RAG, evaluation, safety) – D-18 |
+| Full Stack (FS) | 01_Fullstack (+ 02_Backend) | ✅ ready |
+| SEO (SE) | 07_SEO | ✅ ready |
+| QA / Software Testing (QA) | — | ❌ to write (test design, manual + automated tests, bug reports, CI) – D-18 |
+| DevOps (DO) | 04_DevOps | ✅ ready |
+| AI/ML (ML) | 05_AI_ML | ✅ ready |
+BDA (06) and Backend (02) playbooks remain available for Track A even though they are not launch tracks.
+
 ## Gap vs. intake form roles
 Form roles **without** a playbook yet: Frontend (→ use FS), Mobile App, UI/UX, Graphic Design, 3D, Data Analyst/Scientist (→ partly ML), QA/Tester, Technical R&D.
 Playbooks **not** in the form: DevOps, SEO. → Decision D-07 (add to form or keep internal).

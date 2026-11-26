@@ -19,7 +19,7 @@ Priority: **P1** = MVP (Phases 1–2) · **P2** = Phase 3 · **P3** = later.
 - **AC:** editing a playbook creates a new version; active enrolments stay on their version.
 
 ## M4 Enrolments (plan record) – P1
-- Fields from the playbook "record before issuing this plan"; stipend / fee; status machine.
+- Fields from the playbook "record before issuing this plan"; **engagement type** (free / paid / stipend) + amount, admin-only; status machine.
 - **AC:** cannot activate without mentor, dates, duration and accepted offer (A) or paid (B).
 
 ## M5 Diagnostic – P1
@@ -54,6 +54,14 @@ Priority: **P1** = MVP (Phases 1–2) · **P2** = Phase 3 · **P3** = later.
 
 ## M13 Completion – P1
 - Final demo checklist (35-min agenda), final report form (9 sections), completion record → eligibility → documents.
+
+## M18 Admin settings – P1
+- Organisation & branding (name, address, LLPIN, logo, website, contact/sender email, verify base URL).
+- Academic year (start month, current label override).
+- Numbering schemes per document type (pattern tokens `{AY} {YYYY} {ROLE} {TRACK} {SEQ:n}`), live preview of next number.
+- Signatories (name, title, signature, stamp) + mapping to templates.
+- Roles catalogue (launch tracks on/off, form labels).
+- **AC:** nothing brand/number/year-related is hard-coded; changing a pattern affects only future documents; settings changes are audit-logged; only super_admin edits signatories.
 
 ## M14 Courses (Track B) – P2
 - Course → modules (weeks) → lessons (video/embed, notes, resources); drip by week; progress; quizzes (MCQ, auto-grade); assignments (file/link, rubric grading); capstone uses M6.

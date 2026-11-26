@@ -17,7 +17,7 @@ flowchart LR
 ```
 1. Every new form response already gets a Candidate ID in the Sheet. The script also POSTs it to `/api/applicants/import` (signed secret) → upsert by `candidate_code`.
 2. Admin filters (role, year, availability, CV present), changes status: `shortlisted / on_hold / not_now`.
-3. Track A: mentor runs Day 1–2 diagnostic (scores recorded) → interview note → admin creates enrolment (duration, mentor, dates, stipend) → offer letter generated → candidate accepts in portal (click + timestamp).
+3. Track A: mentor runs Day 1–2 diagnostic (scores recorded) → interview note → admin creates enrolment (duration, mentor, dates, engagement type free/paid/stipend + amount) → offer letter generated → candidate accepts in portal (click + timestamp).
 4. Track B: counselling call logged → payment link → on `payment.captured` webhook: invoice + enrollment letter + enrolment active.
 5. Invite email with Google sign-in link; first login links `auth.users` ↔ `profiles` ↔ `applicants`.
 
