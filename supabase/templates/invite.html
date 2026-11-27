@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>You are invited to Quellflow</title>
+</head>
+<body style="margin:0;padding:0;background:#F1F5F9;">
+<div style="display:none;max-height:0;overflow:hidden;">Your account on the Quellflow Internship Portal is ready.</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F1F5F9">
+  <tr><td align="center" style="padding:28px 12px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:560px;">
+      <tr><td style="padding:0 4px 16px 4px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td width="32" height="32" bgcolor="#4A5BF0" align="center" style="border-radius:8px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:bold;color:#ffffff;">Q</td>
+          <td style="padding-left:10px;font-family:Arial,Helvetica,sans-serif;font-size:17px;font-weight:bold;color:#0F172A;">Quellflow <span style="font-weight:normal;color:#64748B;font-size:14px;">Internship Portal</span></td>
+        </tr></table>
+      </td></tr>
+      <tr><td bgcolor="#FFFFFF" style="border:1px solid #E2E8F0;border-radius:12px;">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+          <tr><td style="padding:28px 32px 8px 32px;font-family:Arial,Helvetica,sans-serif;font-size:21px;line-height:28px;font-weight:bold;color:#0F172A;">You are invited to Quellflow</td></tr>
+          <tr><td style="padding:4px 32px 16px 32px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:23px;color:#334155;">Your account on the Quellflow Internship Portal is ready for <b>{{ .Email }}</b>. Click the button to set your password. After that you can also sign in with Google using this email.</td></tr>
+          <tr><td style="padding:8px 32px 8px 32px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+              <td bgcolor="#3448E8" style="border-radius:8px;">
+                <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/account/password" target="_blank" style="display:inline-block;padding:13px 24px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:bold;color:#ffffff;text-decoration:none;border-radius:8px;">Accept invite and set password</a>
+              </td></tr></table>
+          </td></tr>
+          <tr><td style="padding:16px 32px 0 32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#64748B;">
+            If the button does not work, copy this link into your browser:<br>
+            <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/account/password" style="color:#2536BF;word-break:break-all;">{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=invite&next=/account/password</a>
+          </td></tr>
+          <tr><td style="padding:20px 32px 28px 32px;font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:20px;color:#64748B;">The link works once and expires in 24 hours. If it has expired, use “Forgot password?” on the sign-in page.</td></tr>
+        </table>
+      </td></tr>
+      <tr><td style="padding:16px 8px 0 8px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:18px;color:#64748B;text-align:center;">
+        Sent to {{ .Email }} by the Quellflow Internship Portal.<br>Quellflow Technologies LLP, Dhrangadhra, Surendranagar, Gujarat
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "auth": {
+    "site_url": "https://internship.quellflow.online",
+    "additional_redirect_urls": ["https://internship.quellflow.online/**", "https://internship-portal-sooty.vercel.app/**", "http://localhost:3000/**"],
+    "email": {
+      "template": {
+        "recovery":         { "subject": "Reset your Quellflow password",            "content_path": "./supabase/templates/recovery.html" },
+        "invite":           { "subject": "You are invited to the Quellflow Internship Portal", "content_path": "./supabase/templates/invite.html" },
+        "confirmation":     { "subject": "Confirm your email for Quellflow",         "content_path": "./supabase/templates/confirmation.html" },
+        "magic_link":       { "subject": "Your Quellflow sign-in link",              "content_path": "./supabase/templates/magic_link.html" },
+        "email_change":     { "subject": "Confirm your new email for Quellflow",     "content_path": "./supabase/templates/email_change.html" },
+        "reauthentication": { "subject": "Your Quellflow verification code",         "content_path": "./supabase/templates/reauthentication.html" }
+      },
+      "notification": {
+        "password_changed": { "enabled": true, "subject": "Your Quellflow password was changed", "content_path": "./supabase/templates/password_changed_notification.html" },
+        "email_changed":    { "enabled": true, "subject": "Your Quellflow email was changed",    "content_path": "./supabase/templates/email_changed_notification.html" }
+      }
+    }
+  }
+}

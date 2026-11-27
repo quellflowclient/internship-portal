@@ -20,7 +20,13 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [info, setInfo] = useState("");
-  const [error, setError] = useState(initialError ? "Sign-in failed. Please try again." : "");
+  const [error, setError] = useState(
+    !initialError
+      ? ""
+      : initialError === "link" || initialError === "callback"
+        ? "This link has expired or was already used. Ask for a new one below."
+        : "Sign-in failed. Please try again.",
+  );
 
   const callback = (to: string) => `${window.location.origin}/auth/callback?next=${encodeURIComponent(to)}`;
   const reset = (m: Mode) => {
