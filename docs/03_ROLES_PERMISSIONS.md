@@ -3,10 +3,12 @@
 ## Roles
 | Role | Who | Login |
 |---|---|---|
-| `super_admin` | Partners (Ashish, Dharmik) | Google / email OTP + 2FA |
-| `admin` | Programme / HR operations | Google / email OTP |
-| `mentor` | Quellflow team members guiding interns | Google |
-| `student` | Track A interns, Track B trainees (only after enrolment invite) | Google (same account as form preferred) |
+| `super_admin` | Partners (Ashish, Dharmik) | Google or email + password (2-Step Verification on the Google account) |
+| `admin` | Programme / HR operations | Google or email + password |
+| `mentor` | Quellflow team members guiding interns | Google or email + password |
+| `student` | Track A interns, Track B trainees (only after enrolment invite) | Google or email + password (same email as the form) |
+
+**Login methods (all invite-only):** Google · email + password (create password / sign in / forgot password) · one-time email link. Access is decided by the invitation, never by the method. Any signed-in user can add or change a password at `/account/password` (works without SMTP). Sign-up confirmation, reset and link emails need custom SMTP (D-10) – until then Supabase's built-in mailer only reaches project team members (2 emails/hour).
 | `public` | College professors, employers | No login – only `/verify/*` |
 
 Applicants from the Google Form are **not** users. An admin invites them when they are shortlisted/enrolled. A person can hold one role; mentors who also admin get `admin` + mentor assignment via `batch_mentors`.

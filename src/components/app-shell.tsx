@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
-import { LogOut } from "lucide-react";
+import { KeyRound, LogOut } from "lucide-react";
 import { Wordmark } from "@/components/ui";
 import { signOut } from "@/server/actions/auth";
 import { ROLE_LABEL } from "@/lib/labels";
@@ -37,11 +37,16 @@ export function AppShell({ nav, profile, children }: { nav: NavItem[]; profile: 
 
       <header className="flex items-center justify-between bg-navy px-4 py-3 text-white lg:hidden">
         <Wordmark />
-        <form action={signOut}>
-          <button type="submit" className="flex min-h-11 items-center gap-1 text-sm text-white/85" aria-label="Sign out">
-            <LogOut className="h-4 w-4" aria-hidden />
-          </button>
-        </form>
+        <div className="flex items-center gap-1">
+          <Link href="/account/password" className="flex min-h-11 min-w-11 items-center justify-center text-white/85" aria-label="Set or change password">
+            <KeyRound className="h-4 w-4" aria-hidden />
+          </Link>
+          <form action={signOut}>
+            <button type="submit" className="flex min-h-11 min-w-11 items-center justify-center text-white/85" aria-label="Sign out">
+              <LogOut className="h-4 w-4" aria-hidden />
+            </button>
+          </form>
+        </div>
       </header>
 
       <main className="px-4 pt-6 pb-24 sm:px-6 lg:px-10 lg:pb-10">{children}</main>
@@ -63,7 +68,10 @@ function UserBox({ profile }: { profile: Profile }) {
     <div className="border-t border-white/10 p-4">
       <p className="truncate text-sm font-semibold">{profile.full_name ?? profile.email}</p>
       <p className="truncate text-xs text-white/60">{ROLE_LABEL[profile.role]}</p>
-      <form action={signOut} className="mt-3">
+      <Link href="/account/password" className="mt-3 flex items-center gap-2 text-xs text-white/75 hover:text-white">
+        <KeyRound className="h-3.5 w-3.5" aria-hidden /> Set / change password
+      </Link>
+      <form action={signOut} className="mt-2">
         <button type="submit" className="flex items-center gap-2 text-xs text-white/75 hover:text-white">
           <LogOut className="h-3.5 w-3.5" aria-hidden /> Sign out
         </button>

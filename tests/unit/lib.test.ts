@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatPhone, toE164India } from "@/lib/phone";
+import { passwordProblem } from "@/lib/password";
 import { computeSignature, verifySignature } from "@/lib/hmac";
 import { importBodySchema, resolveRoleCode, toApplicantRow } from "@/lib/applicants/import";
 import { batchSchema, convertSchema, numberingSchema } from "@/lib/validators";
@@ -21,6 +22,17 @@ describe("phone", () => {
     expect(formatPhone("+919876543210")).toBe("+91 98765 43210");
     expect(formatPhone(null)).toBe("—");
   });
+});
+
+describe("password policy", () => {
+  it.each([
+    ["short1", false],
+    ["onlyletterslong", false],
+    ["1234567890123", false],
+    ["Quellflow2026", true],
+    ["a".repeat(70) + "12", true],
+    ["a".repeat(72) + "1", false],
+  ])("%s -> ok=%s", (pw, ok) => expect(passwordProblem(pw) === null).toBe(ok));
 });
 
 describe("hmac", () => {
