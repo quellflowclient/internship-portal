@@ -8,6 +8,10 @@ import type {
   LeadStage,
   LostReason,
   MoneyCategory,
+  PlanItemState,
+  PlanKind,
+  AttendanceMark,
+  WorkMark,
   StudentType,
   Tone,
   UserRole,
@@ -111,3 +115,44 @@ export const DOC_DISPLAY: Record<string, { label: string; tone: Tone }> = {
   revoked: { label: "Revoked", tone: "bad" },
   superseded: { label: "Superseded", tone: "mute" },
 };
+
+/** Plan item kinds: a small colour square + text everywhere (never colour alone). */
+export const PLAN_KINDS: PlanKind[] = ["session", "task", "test", "milestone", "buffer"];
+export const PLAN_KIND: Record<PlanKind, { label: string; tone: Tone; dot: string }> = {
+  session: { label: "Session", tone: "info", dot: "bg-info" },
+  task: { label: "Task", tone: "vio", dot: "bg-vio" },
+  test: { label: "Test", tone: "warn", dot: "bg-warn" },
+  milestone: { label: "Milestone", tone: "ok", dot: "bg-ok" },
+  buffer: { label: "Buffer", tone: "mute", dot: "bg-line-strong" },
+};
+
+export const PLAN_STATE: Record<PlanItemState, { label: string; tone: Tone }> = {
+  planned: { label: "Planned", tone: "mute" },
+  overdue: { label: "Overdue", tone: "warn" },
+  delivered: { label: "Done", tone: "ok" },
+  late: { label: "Done late", tone: "warn" },
+  skipped: { label: "Skipped", tone: "bad" },
+};
+
+export const ATTENDANCE_LABEL: Record<AttendanceMark, string> = { present: "Present", absent: "Absent", leave: "On leave" };
+export const WORK_MARK_LABEL: Record<WorkMark, string> = { done: "Done", late: "Late", missing: "Missing", excused: "Excused" };
+
+/** ISO weekday numbers used in batches.schedule_days */
+export const WEEKDAYS: [number, string][] = [
+  [1, "Mon"],
+  [2, "Tue"],
+  [3, "Wed"],
+  [4, "Thu"],
+  [5, "Fri"],
+  [6, "Sat"],
+  [7, "Sun"],
+];
+
+/** [1,2,3,4,5] → "Mon–Fri"; [2,4,6] → "Tue, Thu, Sat" */
+export function scheduleLabel(days: number[] | null | undefined): string {
+  const d = [...new Set(days ?? [])].sort((a, b) => a - b);
+  if (!d.length) return "No days set";
+  const name = (n: number) => WEEKDAYS.find(([k]) => k === n)?.[1] ?? "?";
+  const run = d.every((n, i) => i === 0 || n === d[i - 1] + 1);
+  return run && d.length >= 3 ? `${name(d[0])}–${name(d[d.length - 1])}` : d.map(name).join(", ");
+}

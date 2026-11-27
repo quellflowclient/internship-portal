@@ -15,6 +15,10 @@ export type MoneyStatus = "expected" | "done" | "void";
 export type DocType = "offer" | "tnc" | "consent" | "joining" | "certificate" | "experience" | "lor" | "project_certificate";
 export type DocStatus = "draft" | "issued" | "accepted" | "revoked" | "superseded";
 export type Tone = "ok" | "warn" | "bad" | "info" | "vio" | "acc" | "mute";
+export type PlanKind = "session" | "task" | "test" | "milestone" | "buffer";
+export type PlanItemState = "planned" | "overdue" | "delivered" | "late" | "skipped";
+export type AttendanceMark = "present" | "absent" | "leave";
+export type WorkMark = "done" | "late" | "missing" | "excused";
 
 export interface Profile {
   id: string;
@@ -237,3 +241,93 @@ export interface OrgSettings {
   timezone: string;
   academic_year_start_month: number;
 }
+
+export interface PlanResource {
+  label: string;
+  url: string;
+}
+
+export interface BatchPlan {
+  id: string;
+  batch_id: string;
+  published_version: number;
+  has_unpublished_changes: boolean;
+  share_token: string;
+  share_enabled: boolean;
+  show_done_marks: boolean;
+  updated_at: string;
+}
+
+/** Draft plan item (public.batch_plan_items) */
+export interface BatchPlanItem {
+  id: string;
+  batch_plan_id: string;
+  seq: number;
+  week: number;
+  planned_date: string;
+  kind: PlanKind;
+  title: string;
+  description: string | null;
+  resources: PlanResource[];
+  duration_min: number | null;
+  skipped_at: string | null;
+  skip_reason: string | null;
+  deleted_at: string | null;
+}
+
+/** public.v_plan_item_status */
+export interface PlanItemStatusRow {
+  id: string;
+  batch_id: string;
+  batch_plan_id: string;
+  seq: number;
+  week: number;
+  planned_date: string;
+  kind: PlanKind;
+  title: string;
+  skip_reason: string | null;
+  delivered_on: string | null;
+  delay_days: number | null;
+  status: PlanItemState;
+}
+
+export interface BatchPlanVersion {
+  id: string;
+  batch_plan_id: string;
+  version: number;
+  published_at: string;
+  change_note: string | null;
+  items: { id: string; seq: number; week: number; date: string; kind: PlanKind; title: string; description: string | null; resources: PlanResource[] }[];
+}
+
+export interface TrackEntry {
+  id: string;
+  batch_id: string;
+  plan_item_id: string | null;
+  held_on: string;
+  kind: PlanKind;
+  title: string;
+  link: string | null;
+  note: string | null;
+  deleted_at: string | null;
+  created_at: string;
+}
+
+export interface PlanTemplateItem {
+  id: string;
+  template_id: string;
+  seq: number;
+  week: number;
+  day_offset: number;
+  kind: PlanKind;
+  title: string;
+  description: string | null;
+  resources: PlanResource[];
+  duration_min: number | null;
+}
+
+/** Batch with its course plan and course (as loaded by getBatch) */
+export type BatchFull = Batch & {
+  created_at: string;
+  course_plans: { id: string; duration_days: number; fee_inr: number; courses: { code: string; name: string } };
+};
