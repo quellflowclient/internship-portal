@@ -1,6 +1,6 @@
 # 18 – Plan v2.2: Internship Portal (CRM · Students · Batches · Payments · Documents)
 
-**Status:** v2.2 for final review (27-Nov-2026). The build starts after the owner freezes it. Nothing below is implemented yet.
+**Status:** v2.3 for final review (27-Nov-2026) – adds the batch workspace, batch plan vs live track (§18) and project classification (§19). The build starts after the owner freezes it. Nothing below is implemented yet.
 **Wireframes:** https://claude.ai/artifact/CVxiNwpDfhSAjdQMLFc1Lb (private – share from its Share menu).
 This document replaces the mentor-led parts of docs 01–09 wherever they conflict.
 
@@ -240,5 +240,54 @@ One migration (no real data yet): roles → admin/student + is_owner · applican
 | F | Work log + completion grid + attendance; student app |
 | G | Projects tracking; daily cron + digest; email once SMTP exists |
 
-## 18. Still needed from the owner
+## 18. Batch workspace (v2.3)
+
+A batch is one page with tabs. The **plan** is the reference; the **live track** is what really happened. Tracking never edits the plan.
+
+| Tab | What it holds | Owner of the data |
+|---|---|---|
+| **Overview** | Course plan, dates, schedule, capacity, coordinator, status · tool links (WhatsApp, Classroom, Meet, YouTube playlist, Drive, GitHub) · KPIs: day X of N, students by type, avg attendance, **plan progress** (delivered / planned, days behind) · money summary (read-only from Payments) | Batch |
+| **Plan** | Week-by-week plan copied from the course-plan template, editable for this batch · **Publish** → share link + PDF | Batch plan |
+| **Live track** | Sessions / tasks / tests actually given (date, link, channel), each optionally linked to a plan item · completion grid (students × items) · attendance per session | Work log |
+| **Students** | Roster: assign / unassign / transfer, type, status, fee/stipend status (read-only), document status (read-only) | Enrolments |
+| **Projects** | Projects linked to this batch (college projects of its interns, client projects of its stipend students) | Projects |
+| **Close batch** | Results per student → certificate drafts → issue all → ZIP | Documents |
+
+### 18.1 Batch plan – how it works
+1. **Template per course plan** (Settings → Courses → AI Automation · 30 days → Plan template): items with *week*, *day offset*, *kind* (session, task, test, project milestone, holiday/buffer), *title*, *description*, *resources* (YouTube / Drive / GitHub links), *duration*. Edited rarely, versioned.
+2. **Create batch** → the template is **copied** into the batch. Planned dates are calculated from the start date and the batch's schedule days (holidays skipped).
+3. **Edit for this batch** (drag to reorder, edit text, add/remove items, shift dates). Changes stay in **Draft** until **Publish**.
+4. **Publish** → version +1, "last updated" stamp, optional change note ("Week 3 test moved to Friday").
+   - **Share link:** `https://<portal>/plan/<random token>` – a read-only, mobile-friendly **HTML** page (always the latest published version; no student data on it). Post it in the WhatsApp group or Classroom.
+   - **PDF:** generated on demand from the same page (for college or a WhatsApp attachment), stamped with version and date.
+   - Students also see it in the app (Home → My batch → Plan).
+5. **Why HTML (not a stored PDF/Doc) is the source:** one place to edit, always current, free (no file storage), and a PDF can still be exported whenever needed. Google Docs is not used because edits there would not be linked to the live track.
+
+### 18.2 Live track (actual)
+- Admin logs what was really given: **"Log from plan"** (pick a plan item → title, links and kind pre-filled, date = today) or **"Log unplanned"**.
+- Each plan item's status is **computed**: *Pending* · *Delivered on <date>* (on time / +N days) · *Skipped* (admin marks it, with a reason). The plan text itself is never changed by tracking.
+- Batch Overview shows **Delivered 14 / 20 planned · 2 days behind · 1 skipped**, and the plan page can show a ✓ next to delivered items (toggle).
+
+### 18.3 Data (additions)
+**plan_templates** – `course_plan_id*` · `version*` · `active` · **plan_template_items** – `template_id*` · `seq*` · `week*` · `day_offset*` · `kind*` · `title*` · `description` · `resources` (list of {label, url}) · `duration_min`
+**batch_plans** – `batch_id*` (one per batch) · `status*` (draft, published) · `version*` · `published_at` · `change_note` · `share_token*` · `share_enabled*`
+**batch_plan_items** – `batch_plan_id*` · `seq*` · `week*` · `planned_date` · `kind*` · `title*` · `description` · `resources` · `duration_min` · `skipped` + `skip_reason` (tracking flag, not content)
+**work_items** gains `plan_item_id` (nullable = unplanned).
+
+## 19. Projects – classification
+
+| Kind | For | Members | Rules |
+|---|---|---|---|
+| **Client project** | Real work for a Quellflow client | Stipend students (and staff) | Members must have accepted the **NDA/IP consent** · repo **private** in the Quellflow GitHub org · client name and contact are admin-only · never shown on public pages · may count toward the **experience letter** |
+| **College project** | A project the intern submits to their college | Any student (Paid / Free / Stipend), solo or team | Repo can be the student's own or the Quellflow org (public allowed) · fields for college, guide, submission date · issues a **Project completion certificate** (new document type) |
+| **Internal project** | Quellflow's own products / tools (e.g. this portal) | Stipend students, staff | Repo private · portfolio mention allowed after approval |
+
+**projects** – `code*` (PRJ-CL-07 / PRJ-CO-12 / PRJ-IN-03) · `name*` · `kind*` (client, college, internal) · `batch_id` (optional) · `description` · `status*` (planned, active, on_hold, completed, cancelled) · `start_date` · `due_date` · `lead_admin_id` · **`github_url`** · `github_visibility` (private, public) · `demo_url` · `docs_url` ·
+  – client: `client_name` · `client_contact` (admin-only) · `nda_required` (always true)
+  – college: `college_name` · `guide_name` · `submission_due` · `report_status` (not started, draft, submitted, approved)
+**project_members** – `project_id*` · `enrollment_id*` · `role` (developer, designer, tester, analyst, bd) · `hours_per_week` · `contribution_note` (used in the certificate / experience letter)
+**tasks** (tracking only) – `project_id*` · `title*` · `status*` · `assignee` · `due_date` · `link` (PR / commit / doc)
+Document types gain **project_certificate** (college projects).
+
+## 20. Still needed from the owner
 Course plan prices and benefits · wording of the offer letter, T&C, consents and certificate (we draft, you approve, CA/lawyer reviews) · signatory names + signature image · local files root folder · the final domain for the QR links (changing the domain later breaks old QR codes, so fix it before the first certificate).
