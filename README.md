@@ -41,6 +41,7 @@ pnpm dev                        # http://localhost:3000
 | 14 | [Testing & QA](docs/14_TESTING_QA.md) | Test strategy and checklists |
 | 15 | [Student FAQ bank](docs/15_FAQ_BANK.md) | Questions students will ask + answers to finalise |
 | 16 | [Decisions log](docs/16_DECISIONS_LOG.md) | Open and closed decisions |
+| 18 | **[Plan v2 – CRM + HRMS + PMS + 360](docs/18_PLAN_V2.md)** | **Current direction (under review):** admin/student roles, Paid/Free/Stipend, fields for every table, batches, monthly fees & stipend, Vercel setup, open-source reuse |
 
 ## Reference material
 - `project-docs/` – 7 role playbooks (Fullstack, Backend, AI Automation, DevOps, AI/ML, BDA, SEO). Source of truth for mentor-led programme content. **Kept local only (git-ignored) – company material, not for the public repo.**
