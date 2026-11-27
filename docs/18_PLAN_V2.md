@@ -290,4 +290,4 @@ A batch is one page with tabs. The **plan** is the reference; the **live track**
 Document types gain **project_certificate** (college projects).
 
 ## 20. Still needed from the owner
-Course plan prices and benefits · wording of the offer letter, T&C, consents and certificate (we draft, you approve, CA/lawyer reviews) · signatory names + signature image · local files root folder · the final domain for the QR links (changing the domain later breaks old QR codes, so fix it before the first certificate).
+Course plan prices and benefits · wording of the offer letter, T&C, consents and certificate (we draft, you approve, CA/lawyer reviews) · signatory names + signature image · local files root folder. Domain decided: **internship.quellflow.online** (set it in Settings → Organisation → Verify page domain before the first certificate).

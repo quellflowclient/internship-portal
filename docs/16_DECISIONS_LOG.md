@@ -9,9 +9,9 @@ Priority: **P0** = needed before Phase 1/2 · **P1** = before Track B · **P2** 
 | D-06 | Certificate signatories (names, titles, signature images) | Templates built with **signatory placeholders** managed in Admin → Settings → Signatories; owner provides later | P1 | OPEN – owner will provide | Partners |
 | D-08b | Supabase project access | Cloud, **Mumbai (ap-south-1)** confirmed; owner creates project and shares access | P0 | WAITING | Owner |
 | D-09 | DSC signing of PDFs | Phase 4 | P2 | OPEN | Partners |
-| D-10 | Email provider + sender address | Owner will provide | P0 | WAITING | Owner |
+| D-10 | Email provider + sender address | **Resend** (decided 27-Nov-2026). Sender on `quellflow.online` after domain verification in Resend. Key lives only in Vercel env `RESEND_API_KEY` and Supabase Auth SMTP – never in the repo | P0 | DECIDED | Owner |
 | D-11 | Video hosting (YouTube unlisted vs Bunny Stream) | Start YouTube unlisted | P1 | OPEN | Tech |
-| D-12 | Hosting + domain | Owner will provide (suggested `learn.quellflow.com`) – portal reads base URL from settings/env, nothing hard-coded | P0 | WAITING | Owner |
+| D-12 | Hosting + domain | **https://internship.quellflow.online** on Vercel (decided 27-Nov-2026). Also the QR verify domain (Settings → Organisation). Base URL comes from settings/env, nothing hard-coded | P0 | DECIDED | Owner |
 | D-13 | Data retention periods | 12 months for non-converted applicants (proposal) | P1 | OPEN | Partners |
 | D-14 | Grade < 50 → participation letter or nothing | | P1 | OPEN | Partners |
 | D-16 | Portal product name | | P2 | OPEN | Partners |

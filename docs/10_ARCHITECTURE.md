@@ -12,7 +12,7 @@
 | Email | Resend / Brevo / Google Workspace SMTP – D-10 | Transactional only |
 | Automation | **n8n** (already used by Quellflow) | Reminders, WhatsApp, Sheet sync |
 | Video | YouTube unlisted / Bunny Stream – D-11 | Embedded in lessons |
-| Hosting | Vercel (simplest) or existing EC2 – D-12 | `learn.quellflow.com` |
+| Hosting | Vercel (simplest) or existing EC2 – D-12 | `internship.quellflow.online` |
 | Monitoring | Sentry (errors), Supabase logs, uptime check | |
 
 ### Alternatives evaluated (Nov 2026)

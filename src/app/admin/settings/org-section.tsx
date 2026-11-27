@@ -73,7 +73,7 @@ export async function OrgSection({ canEdit }: { canEdit: boolean }) {
               defaultValue={org.verify_base_url ?? ""}
               disabled={!canEdit}
               inputMode="url"
-              placeholder="https://learn.quellflow.com"
+              placeholder="https://internship.quellflow.online"
             />
             <FieldError name="verify_base_url" />
           </Field>
