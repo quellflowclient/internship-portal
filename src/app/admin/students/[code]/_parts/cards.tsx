@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { CopyButton } from "@/components/toast";
+import { prettySummary } from "@/lib/leads/view";
 import { ButtonLink, Card, CardHeader, DL, IconLink, Meta, Notice, Pill } from "@/components/ui";
 import { ACTIVITY_LABEL, DOC_DISPLAY, DOC_TYPE_LABEL, ENROLLMENT_STATUS, MONEY_CATEGORY_LABEL, TYPE } from "@/lib/labels";
 import { formatPhone } from "@/lib/phone";
@@ -330,7 +331,7 @@ export function TimelineCard({ items }: { items: ActivityRow[] }) {
                   <Icon aria-hidden />
                 </span>
                 <div className="min-w-0 text-sm">
-                  <b className="block font-semibold break-words">{a.summary}</b>
+                  <b className="block font-semibold break-words">{prettySummary(a.summary)}</b>
                   {a.outcome ? <p className="text-fg-2 break-words">{a.outcome}</p> : null}
                   <Meta className="text-xs text-fg-3" items={[ACTIVITY_LABEL[a.kind], formatDateTime(a.occurred_at)]} />
                 </div>

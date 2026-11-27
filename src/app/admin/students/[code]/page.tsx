@@ -26,6 +26,11 @@ import {
 
 const PLAN_SELECT = "id, duration_days, fee_inr, course:courses(code, name)";
 
+export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
+  const { code } = await params;
+  return { title: `Student ${decodeURIComponent(code)}` };
+}
+
 export default async function Student360({
   params,
   searchParams,
@@ -185,8 +190,8 @@ export default async function Student360({
                 <WhatsAppIcon className="text-wa" />
               </IconAnchor>
             ) : null}
-            <CopyButton text={s.phone} label={`Copy mobile ${formatPhone(s.phone)}`} outline />
-            <CopyButton text={s.email} label={`Copy email ${s.email}`} outline />
+            <CopyButton icon="phone" text={s.phone} label={`Copy mobile ${formatPhone(s.phone)}`} outline />
+            <CopyButton icon="mail" text={s.email} label={`Copy email ${s.email}`} outline />
           </>
         }
       />

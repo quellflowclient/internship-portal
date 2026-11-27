@@ -8,7 +8,7 @@ import * as React from "react";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Copy } from "lucide-react";
+import { Copy, Mail, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ActionResult } from "@/server/result";
 import { Button, IconButton } from "@/components/ui";
@@ -248,7 +248,20 @@ export function SubmitButton({
 }
 
 /** Copy text to the clipboard with a toast. Falls back to selecting nothing but telling the user. */
-export function CopyButton({ text, label = "Copy", outline, small }: { text: string; label?: string; outline?: boolean; small?: boolean }) {
+export function CopyButton({
+  text,
+  label = "Copy",
+  outline,
+  small,
+  icon = "copy",
+}: {
+  text: string;
+  label?: string;
+  outline?: boolean;
+  small?: boolean;
+  icon?: "copy" | "phone" | "mail";
+}) {
+  const Icon = icon === "phone" ? Phone : icon === "mail" ? Mail : Copy;
   const toast = useToast();
   return (
     <IconButton
@@ -264,7 +277,7 @@ export function CopyButton({ text, label = "Copy", outline, small }: { text: str
         }
       }}
     >
-      <Copy aria-hidden />
+      <Icon aria-hidden />
     </IconButton>
   );
 }

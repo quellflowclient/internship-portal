@@ -84,8 +84,8 @@ export async function LeadPanel({
           <WhatsAppIcon />
         </IconAnchor>
       ) : null}
-      {lead.phone ? <CopyButton text={lead.phone} label={`Copy mobile ${formatPhone(lead.phone)}`} /> : null}
-      {lead.email ? <CopyButton text={lead.email} label={`Copy email ${lead.email}`} /> : null}
+      {lead.phone ? <CopyButton icon="phone" text={lead.phone} label={`Copy mobile ${formatPhone(lead.phone)}`} /> : null}
+      {lead.email ? <CopyButton icon="mail" text={lead.email} label={`Copy email ${lead.email}`} /> : null}
     </>
   );
   const head = { closeHref, title: lead.full_name, lead: <Avatar name={lead.full_name} size="lg" />, icons };

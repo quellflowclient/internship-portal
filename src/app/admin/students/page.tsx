@@ -13,6 +13,8 @@ import { NewStudentPanel } from "./_parts/new-student";
 
 const TYPES: StudentType[] = ["paid", "free", "stipend"];
 
+export const metadata = { title: "Students" };
+
 export default async function StudentsPage({ searchParams }: { searchParams: Promise<SearchParams> }) {
   const params = await searchParams;
   const supabase = await createClient();

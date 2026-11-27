@@ -44,8 +44,8 @@ export async function QuickView({ code, closeHref }: { code: string; closeHref: 
               <WhatsAppIcon className="text-wa" />
             </IconAnchor>
           ) : null}
-          <CopyButton text={s.phone} label={`Copy mobile ${formatPhone(s.phone)}`} />
-          <CopyButton text={s.email} label={`Copy email ${s.email}`} />
+          <CopyButton icon="phone" text={s.phone} label={`Copy mobile ${formatPhone(s.phone)}`} />
+          <CopyButton icon="mail" text={s.email} label={`Copy email ${s.email}`} />
         </>
       }
       footer={
