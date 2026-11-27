@@ -1,86 +1,113 @@
 import type {
-  ApplicantStatus,
-  DocumentType,
-  DurationPlan,
-  EngagementType,
+  ActivityKind,
+  BatchStatus,
+  DisplayStatus,
+  DocType,
   EnrollmentStatus,
-  ProgramTrack,
+  LeadSource,
+  LeadStage,
+  LostReason,
+  MoneyCategory,
+  StudentType,
+  Tone,
   UserRole,
 } from "./types";
 
-export const ROLE_LABEL: Record<UserRole, string> = {
-  super_admin: "Super admin",
-  admin: "Admin",
-  mentor: "Mentor",
-  student: "Student",
+/** Display words and colours for every enum. Status pills always show text, never colour alone. */
+export const ROLE_LABEL: Record<UserRole, string> = { admin: "Admin", student: "Student" };
+
+export const STAGES: LeadStage[] = ["new", "contacted", "interested", "counselling", "converted", "lost"];
+export const STAGE: Record<LeadStage, { label: string; tone: Tone }> = {
+  new: { label: "New", tone: "info" },
+  contacted: { label: "Contacted", tone: "mute" },
+  interested: { label: "Interested", tone: "acc" },
+  counselling: { label: "Counselling", tone: "vio" },
+  converted: { label: "Converted", tone: "ok" },
+  lost: { label: "Lost", tone: "bad" },
 };
 
-export const TRACK_LABEL: Record<ProgramTrack, string> = {
-  merit: "Track A – Merit Internship",
-  paid: "Track B – Training + Internship",
-  self_paced: "Track C – Self-paced",
+export const SOURCE_LABEL: Record<LeadSource, string> = {
+  form: "Form",
+  whatsapp: "WhatsApp",
+  referral: "Referral",
+  walk_in: "Walk-in",
+  other: "Other",
 };
 
-export const DURATION_LABEL: Record<DurationPlan, string> = {
-  d45: "45 days",
-  d90: "90 days",
-  m6: "6 months",
+export const LOST_REASON_LABEL: Record<LostReason, string> = {
+  not_interested: "Not interested",
+  no_response: "No response",
+  not_eligible: "Not eligible",
+  joined_elsewhere: "Joined elsewhere",
+  duplicate: "Duplicate",
+  spam: "Spam",
 };
 
-export const ENGAGEMENT_LABEL: Record<EngagementType, string> = {
-  free: "Free",
-  paid: "Paid (fee)",
+export const ACTIVITY_LABEL: Record<ActivityKind, string> = {
+  call: "Call",
+  whatsapp: "WhatsApp",
+  email: "Email",
+  meeting: "Meeting",
+  note: "Note",
+  system: "Update",
+};
+
+export const TYPE: Record<StudentType, { label: string; tone: Tone }> = {
+  paid: { label: "Paid", tone: "acc" },
+  free: { label: "Free", tone: "mute" },
+  stipend: { label: "Stipend", tone: "vio" },
+};
+
+export const DISPLAY_STATUS: Record<DisplayStatus, { label: string; tone: Tone }> = {
+  not_assigned: { label: "Not assigned", tone: "info" },
+  at_risk: { label: "At risk", tone: "warn" },
+  active: { label: "Active", tone: "ok" },
+  alumni: { label: "Alumni", tone: "mute" },
+  archived: { label: "Archived", tone: "mute" },
+};
+
+export const ENROLLMENT_STATUS: Record<EnrollmentStatus, { label: string; tone: Tone }> = {
+  assigned: { label: "Assigned", tone: "info" },
+  active: { label: "Active", tone: "ok" },
+  completed: { label: "Completed", tone: "ok" },
+  not_completed: { label: "Not completed", tone: "warn" },
+  withdrawn: { label: "Withdrawn", tone: "mute" },
+  dropped: { label: "Dropped", tone: "bad" },
+  transferred: { label: "Transferred", tone: "mute" },
+};
+
+export const BATCH_STATUS: Record<BatchStatus, { label: string; tone: Tone }> = {
+  planned: { label: "Planned", tone: "info" },
+  running: { label: "Running", tone: "ok" },
+  completed: { label: "Completed", tone: "mute" },
+  cancelled: { label: "Cancelled", tone: "bad" },
+};
+
+export const MONEY_CATEGORY_LABEL: Record<MoneyCategory, string> = {
+  fee: "Fee in",
+  refund: "Refund",
   stipend: "Stipend",
+  bonus: "Bonus",
+  other_in: "Other in",
+  other_out: "Other out",
 };
 
-export const APPLICANT_STATUS_LABEL: Record<ApplicantStatus, string> = {
-  new: "New",
-  shortlisted: "Shortlisted",
-  on_hold: "On hold",
-  not_now: "Not now",
-  converted: "Converted",
-};
-
-export const ENROLLMENT_STATUS_LABEL: Record<EnrollmentStatus, string> = {
-  invited: "Invited",
-  offer_sent: "Offer sent",
-  accepted: "Accepted",
-  payment_pending: "Payment pending",
-  active: "Active",
-  paused: "Paused",
-  completed: "Completed",
-  withdrawn: "Withdrawn",
-  terminated: "Terminated",
-};
-
-export const DOCUMENT_TYPE_LABEL: Record<DocumentType, string> = {
-  offer_letter: "Offer letter",
-  enrollment_letter: "Enrollment letter",
-  agreement: "Internship agreement",
-  certificate_completion: "Certificate of completion",
-  certificate_excellence: "Certificate of excellence",
-  certificate_project: "Project certificate",
-  experience_letter: "Experience letter",
-  relieving_letter: "Relieving letter",
+export const DOC_TYPE_LABEL: Record<DocType, string> = {
+  offer: "Offer letter",
+  tnc: "Terms and conditions",
+  consent: "Consent",
+  joining: "Joining letter",
+  certificate: "Internship certificate",
+  experience: "Experience letter",
   lor: "Letter of recommendation",
-  invoice: "Invoice",
-  grade_report: "Grade report",
+  project_certificate: "Project certificate",
 };
 
-/** Shared status colour mapping (docs/11_UI_UX_GUIDE.md). */
-export const STATUS_TONE: Record<string, string> = {
-  new: "bg-blue-100 text-blue-900",
-  invited: "bg-blue-100 text-blue-900",
-  shortlisted: "bg-green-100 text-green-900",
-  active: "bg-green-100 text-green-900",
-  accepted: "bg-green-100 text-green-900",
-  completed: "bg-green-100 text-green-900",
-  converted: "bg-violet-100 text-violet-900",
-  on_hold: "bg-amber-100 text-amber-900",
-  offer_sent: "bg-amber-100 text-amber-900",
-  payment_pending: "bg-amber-100 text-amber-900",
-  paused: "bg-amber-100 text-amber-900",
-  not_now: "bg-red-100 text-red-900",
-  withdrawn: "bg-red-100 text-red-900",
-  terminated: "bg-red-100 text-red-900",
+export const DOC_DISPLAY: Record<string, { label: string; tone: Tone }> = {
+  draft: { label: "Draft", tone: "mute" },
+  awaiting: { label: "Awaiting", tone: "warn" },
+  issued: { label: "Issued", tone: "acc" },
+  accepted: { label: "Accepted", tone: "ok" },
+  revoked: { label: "Revoked", tone: "bad" },
+  superseded: { label: "Superseded", tone: "mute" },
 };

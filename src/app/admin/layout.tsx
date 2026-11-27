@@ -1,20 +1,23 @@
-import { Gauge, Inbox, Layers, Settings, Users } from "lucide-react";
-import { AppShell, type NavItem } from "@/components/app-shell";
+import { AdminShell } from "@/components/shell/admin-shell";
 import { requireRole } from "@/lib/auth/session";
-
-const NAV: NavItem[] = [
-  { href: "/admin", label: "Overview", icon: Gauge },
-  { href: "/admin/applicants", label: "Applicants", icon: Inbox },
-  { href: "/admin/programs", label: "Programs", icon: Layers },
-  { href: "/admin/users", label: "Users", icon: Users },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
-];
+import { createClient } from "@/lib/supabase/server";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { profile } = await requireRole(["admin", "super_admin"]);
+  const { profile } = await requireRole(["admin"]);
+  const supabase = await createClient();
+  const [leads, docs, attention] = await Promise.all([
+    supabase.from("leads").select("id", { count: "exact", head: true }).eq("stage", "new"),
+    supabase.from("v_document_list").select("id", { count: "exact", head: true }).eq("display_status", "awaiting"),
+    supabase.from("v_attention").select("n"),
+  ]);
   return (
-    <AppShell nav={NAV} profile={profile}>
+    <AdminShell
+      name={profile.full_name ?? profile.email}
+      subtitle={profile.is_owner ? "Admin, owner" : "Admin"}
+      badges={{ leads: leads.count ?? 0, documents: docs.count ?? 0 }}
+      attention={(attention.data ?? []).length}
+    >
       {children}
-    </AppShell>
+    </AdminShell>
   );
 }

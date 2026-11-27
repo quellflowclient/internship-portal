@@ -1,39 +1,257 @@
 @import "tailwindcss";
 
-/* Brand tokens – docs/11_UI_UX_GUIDE.md */
-@theme {
-  --color-navy: #16205a;
-  --color-brand: #3448e8;
-  --color-brand-dark: #2536c4;
-  --color-violet: #8b3cf0;
-  --color-cyan: #12c8e0;
-  --color-slate: #52657d;
-  --color-ink: #3e4f66;
-  --color-soft: #f4f6fb;
-  --color-line: #e3e8f2;
-  --color-tint: #eceffe;
+/*
+ * Design tokens – from the approved UI preview (https://claude.ai/artifact/7XZ36hmJZDDeV6tSZhbZ7Q).
+ * Light values on :root, dark values when the OS asks for dark.
+ * Type scale 12/13/14/16/20/24 · 4px spacing base · one font family (Plus Jakarta Sans).
+ */
+:root {
+  --page: #e2e8f0;
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --surface-2: #f1f5f9;
+  --side: #f1f4f9;
+  --hover: #f5f7fb;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --fg: #0f172a;
+  --fg-2: #475569;
+  --fg-3: #64748b;
+  --accent: #3448e8;
+  --accent-hover: #2838c9;
+  --accent-fg: #ffffff;
+  --accent-soft: #eceffe;
+  --accent-ink: #2536bf;
+  --ok: #047857;
+  --ok-soft: #e6f6ee;
+  --warn: #a35a00;
+  --warn-soft: #fef3e2;
+  --bad: #b91c1c;
+  --bad-soft: #fdecec;
+  --info: #0369a1;
+  --info-soft: #e6f3fa;
+  --vio: #6d28d9;
+  --vio-soft: #f1ebfd;
+  --wa: #128c4a;
+  --scrim: rgb(15 23 42 / 0.38);
+  --pop: 0 12px 32px rgb(15 23 42 / 0.16);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #05080f;
+    --bg: #0b1120;
+    --surface: #111827;
+    --surface-2: #172033;
+    --side: #0e1626;
+    --hover: #152036;
+    --line: #1f2a3d;
+    --line-strong: #2e3b52;
+    --fg: #e5e9f0;
+    --fg-2: #a7b1c2;
+    --fg-3: #8691a5;
+    --accent: #7c8cff;
+    --accent-hover: #96a3ff;
+    --accent-fg: #0b1120;
+    --accent-soft: #1d2450;
+    --accent-ink: #b4beff;
+    --ok: #34d399;
+    --ok-soft: #0e2a20;
+    --warn: #fbbf24;
+    --warn-soft: #2e220a;
+    --bad: #f87171;
+    --bad-soft: #33151a;
+    --info: #60b5f0;
+    --info-soft: #0e2537;
+    --vio: #b79bff;
+    --vio-soft: #241a45;
+    --wa: #25d366;
+    --scrim: rgb(0 0 0 / 0.55);
+    --pop: 0 12px 32px rgb(0 0 0 / 0.5);
+    color-scheme: dark;
+  }
+}
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-montserrat), var(--font-inter), ui-sans-serif, sans-serif;
+@theme inline {
+  --color-page: var(--page);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-side: var(--side);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-fg: var(--fg);
+  --color-fg-2: var(--fg-2);
+  --color-fg-3: var(--fg-3);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-ink: var(--accent-ink);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-bad: var(--bad);
+  --color-bad-soft: var(--bad-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+  --color-vio: var(--vio);
+  --color-vio-soft: var(--vio-soft);
+  --color-wa: var(--wa);
+
+  /* Phase 1 names, kept so the login screens follow the new palette */
+  --color-navy: var(--fg);
+  --color-brand: var(--accent);
+  --color-brand-dark: var(--accent-hover);
+  --color-slate: var(--fg-2);
+  --color-ink: var(--fg-2);
+  --color-soft: var(--bg);
+  --color-tint: var(--accent-soft);
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 20px;
+  --text-xl: 24px;
+
+  --shadow-pop: var(--pop);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 html {
   -webkit-text-size-adjust: 100%;
 }
-
 body {
-  background: var(--color-soft);
-  color: var(--color-navy);
+  background: var(--bg);
+  color: var(--fg);
   font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
-
 h1,
 h2,
 h3 {
-  font-family: var(--font-display);
+  text-wrap: balance;
+  letter-spacing: -0.01em;
+}
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* iOS zooms into inputs smaller than 16px */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
-:focus-visible {
-  outline: 2px solid var(--color-brand);
-  outline-offset: 2px;
+/* ---------- motion ---------- */
+@keyframes qf-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes qf-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+.qf-enter {
+  animation: qf-fade-up 0.26s var(--ease-out-expo) both;
+}
+.qf-row {
+  animation: qf-fade-up 0.22s var(--ease-out-expo) both;
+  animation-delay: calc(var(--i, 0) * 22ms);
+}
+.qf-skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 0%, var(--line) 50%, var(--surface-2) 100%);
+  background-size: 200% 100%;
+  animation: qf-shimmer 1.1s linear infinite;
+  border-radius: 6px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ---------- lists: one grid per list; on phones rows collapse to "main + end" ---------- */
+.qf-list-head,
+.qf-list-row {
+  display: grid;
+  grid-template-columns: var(--cols);
+  gap: 12px;
+  align-items: center;
+  padding-inline: 16px;
+}
+@media (max-width: 767px) {
+  .qf-list-head {
+    display: none;
+  }
+  .qf-list-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-inline: 14px;
+    min-height: 60px;
+  }
+  .qf-wide {
+    display: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .qf-narrow-only {
+    display: none !important;
+  }
+}
+
+/* ---------- side panel (desktop) / bottom sheet (phone) ---------- */
+.qf-panel {
+  transform: translateX(100%);
+  transition: transform 0.3s var(--ease-out-expo);
+}
+.qf-scrim {
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.qf-panel-open .qf-panel {
+  transform: none;
+}
+.qf-panel-open .qf-scrim {
+  opacity: 1;
+}
+@media (max-width: 767px) {
+  .qf-panel {
+    transform: translateY(100%);
+  }
+}
+
+/* ---------- tooltip ---------- */
+.qf-tip {
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity 0.12s,
+    transform 0.12s;
+}
+.qf-tip[data-show="true"] {
+  opacity: 1;
+  transform: none;
 }
