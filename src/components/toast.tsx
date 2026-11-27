@@ -159,38 +159,43 @@ export function ActionForm({
   id?: string;
   children: React.ReactNode;
 }) {
-  const [state, formAction, isPending] = useActionState(action, null);
   const toast = useToast();
   const router = useRouter();
-  const last = React.useRef<ActionResult>(null);
+
+  // Handle the result right when the action returns – not in an effect – because the page refresh
+  // that follows a save can remount this form (loading boundary) and drop its state.
+  const run = React.useCallback(
+    async (prev: ActionResult, formData: FormData): Promise<ActionResult> => {
+      const state = await action(prev, formData);
+      if (!state) return state;
+      if (state.ok) {
+        const undoId = state.undoId;
+        toast(state.message, {
+          undo:
+            undo && undoId
+              ? async () => {
+                  const r = await undo(undoId);
+                  toast(r?.message ?? "Restored", { tone: r && !r.ok ? "error" : "ok" });
+                  router.refresh();
+                }
+              : undefined,
+        });
+        if (state.redirectTo || closeHref) startNavProgress();
+        if (state.redirectTo) router.push(state.redirectTo, { scroll: false });
+        else if (closeHref) router.push(closeHref, { scroll: false });
+      } else if (!state.fieldErrors) {
+        toast(state.message, { tone: "error" });
+      }
+      return state;
+    },
+    [action, undo, closeHref, toast, router],
+  );
+  const [state, formAction, isPending] = useActionState(run, null);
 
   // Footer buttons outside the <form> (form="id") can't use useFormStatus – tell them here.
   React.useEffect(() => {
     if (id) window.dispatchEvent(new CustomEvent("qf-form-pending", { detail: { id, pending: isPending } }));
   }, [id, isPending]);
-
-  React.useEffect(() => {
-    if (!state || state === last.current) return;
-    last.current = state;
-    if (state.ok) {
-      const undoId = state.undoId;
-      toast(state.message, {
-        undo:
-          undo && undoId
-            ? async () => {
-                const r = await undo(undoId);
-                toast(r?.message ?? "Restored", { tone: r && !r.ok ? "error" : "ok" });
-                router.refresh();
-              }
-            : undefined,
-      });
-      if (state.redirectTo || closeHref) startNavProgress();
-      if (state.redirectTo) router.push(state.redirectTo, { scroll: false });
-      else if (closeHref) router.push(closeHref, { scroll: false });
-    } else if (!state.fieldErrors) {
-      toast(state.message, { tone: "error" });
-    }
-  }, [state, toast, router, undo, closeHref]);
 
   return (
     <form action={formAction} className={className} id={id} noValidate>
