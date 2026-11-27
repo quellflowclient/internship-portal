@@ -12,6 +12,7 @@ import { Copy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ActionResult } from "@/server/result";
 import { Button, IconButton } from "@/components/ui";
+import { startNavProgress } from "@/components/nav-progress";
 
 type ToastOpts = { tone?: "ok" | "error"; undo?: () => Promise<void> | void };
 type ToastState = { id: number; message: string } & ToastOpts;
@@ -183,6 +184,7 @@ export function ActionForm({
               }
             : undefined,
       });
+      if (state.redirectTo || closeHref) startNavProgress();
       if (state.redirectTo) router.push(state.redirectTo, { scroll: false });
       else if (closeHref) router.push(closeHref, { scroll: false });
     } else if (!state.fieldErrors) {
@@ -303,6 +305,7 @@ export function ActionButton({
                   }
                 : undefined,
           });
+          if (r.redirectTo || closeHref) startNavProgress();
           if (r.redirectTo) router.push(r.redirectTo, { scroll: false });
           else if (closeHref) router.push(closeHref, { scroll: false });
           else router.refresh();

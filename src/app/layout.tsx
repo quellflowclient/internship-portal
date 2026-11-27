@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
+import { Suspense } from "react";
 import { Toaster } from "@/components/toast";
+import { NavProgress } from "@/components/nav-progress";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -30,6 +32,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en-IN" className={jakarta.variable}>
       <body className="min-h-dvh antialiased">
+        <Suspense fallback={null}>
+          <NavProgress />
+        </Suspense>
         <Toaster>{children}</Toaster>
       </body>
     </html>

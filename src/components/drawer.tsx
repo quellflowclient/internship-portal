@@ -9,6 +9,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { X } from "lucide-react";
 import { IconButton } from "@/components/ui";
+import { startNavProgress } from "@/components/nav-progress";
 
 export function Drawer({
   closeHref,
@@ -32,6 +33,7 @@ export function Drawer({
   const closeBtn = React.useRef<HTMLButtonElement>(null);
   const close = React.useCallback(() => {
     setOpen(false);
+    startNavProgress();
     setTimeout(() => router.push(closeHref, { scroll: false }), 180);
   }, [router, closeHref]);
 
