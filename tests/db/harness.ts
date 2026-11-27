@@ -51,13 +51,24 @@ export async function createUser(db: PGlite, email: string, name = "Test User"):
   return id;
 }
 
-/** Superuser helper to set role/active without going through RLS. */
-export async function setRole(db: PGlite, id: string, role: string, active = true) {
-  await db.query("update public.profiles set role = $2::public.user_role, is_active = $3 where id = $1", [
-    id,
-    role,
-    active,
-  ]);
+/** Superuser helper to set role/active/owner without going through RLS. */
+export async function setRole(db: PGlite, id: string, role: "admin" | "student", active = true, owner = false) {
+  await db.query(
+    "update public.profiles set role = $2::public.user_role, is_active = $3, is_owner = $4 where id = $1",
+    [id, role, active, owner],
+  );
+}
+
+/** Run `fn` as the Supabase service role (import API, cron). */
+export async function asService<T>(db: PGlite, fn: () => Promise<T>): Promise<T> {
+  await db.exec("set role service_role");
+  await db.query("select set_config('request.jwt.claim.role', 'service_role', false)");
+  try {
+    return await fn();
+  } finally {
+    await db.exec("reset role");
+    await db.query("select set_config('request.jwt.claim.role', '', false)");
+  }
 }
 
 /** Run `fn` as an authenticated user (RLS applies), then reset to superuser. */

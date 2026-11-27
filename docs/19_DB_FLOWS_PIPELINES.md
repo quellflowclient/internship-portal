@@ -65,7 +65,7 @@ scan_result        valid | revoked | superseded | not_found
 | **numbering_schemes** | `kind*` (lead, batch, document:<type>, project:<kind>) · `pattern*` · `padding*` | Kept from Phase 1, new kinds added. |
 | **number_sequences** | `kind*` · `scope*` (e.g. `2627` or `2627-AA`) · `last_value*` | Renamed from `document_sequences`; used for every code. Row-locked `next_number()` function. |
 | **signatories** | `name*` · `title*` · `signature_image` (base64, small) · `active*` | Kept. |
-| **audit_log** | `at*` · `actor_id` · `table_name*` · `row_id*` · `action*` (insert/update/delete/restore) · `old` / `new` (jsonb) | Kept. Trigger on every business table. |
+| **audit_log** | `at*` · `actor_id` · `entity*` (table) · `entity_id` · `action*` (insert/update/delete) · `before` / `after` (jsonb) | Kept from Phase 1. Trigger on every business table. |
 
 ### 2.3 CRM
 | Table | Columns | Notes |
@@ -94,7 +94,7 @@ scan_result        valid | revoked | superseded | not_found
 | Table | Columns | Notes |
 |---|---|---|
 | **enrollments** | `student_id*` · `batch_id*` · `type*` · `status*` · `assigned_on*` · `start_date*` · `end_date*` · `fee_inr` (snapshot from the plan; required when type = paid) · `free_reason` + `approved_by` (free) · `exit_reason` · `transferred_to_id` · `result_note` | Owner screen: Student 360 → Enrolment. |
-| **enrollment_changes** | `enrollment_id*` · `change*` (type, fee, dates, status, transfer) · `from_value` · `to_value` · `reason*` · `changed_by*` | Written by the same actions; shown as history. |
+| **enrollment_changes** | `enrollment_id*` · `change*` (type, fee, batch, dates, status) · `from_value` · `to_value` · `reason` · `changed_by*` | Written by a trigger. The app sends `enrollments.change_reason` in the same update; type, fee and batch changes are refused without it. |
 | **stipend_agreements** | `enrollment_id*` · `monthly_inr*` · `from_month*` · `to_month` · `agreed_note` ("email 12 Nov") | Amount used for the monthly rows. |
 | **money_entries** | `student_id*` · `enrollment_id` · `category*` · `direction*` (in/out, checked against category) · `amount_inr*` · `status*` · `period_month` (stipend) · `due_on` (stipend: 5th of next month) · `paid_on` · `mode` · `ref_last4` · `note` · `related_entry_id` (refund → fee) · `proof_saved*` · `void_reason` · `voided_at` | Owner screen: Payments. Students: no access. |
 
