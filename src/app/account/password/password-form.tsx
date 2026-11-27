@@ -34,7 +34,7 @@ export function PasswordForm() {
   if (done) return <Notice tone="success">Password saved. Taking you to the portal…</Notice>;
 
   return (
-    <form onSubmit={submit} className="space-y-3" noValidate>
+    <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate>
       {error ? <Notice tone="error">{error}</Notice> : null}
       <Field label="New password" htmlFor="pw" hint={`At least ${PASSWORD_MIN} characters with letters and a number.`}>
         <Input id="pw" type="password" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} required />

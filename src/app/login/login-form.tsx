@@ -100,23 +100,23 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
   }[mode];
 
   return (
-    <div className="space-y-5">
+    <div className="flex flex-col gap-4">
       {error ? <Notice tone="error">{error}</Notice> : null}
       {info ? <Notice tone="success">{info}</Notice> : null}
 
       <Button type="button" variant="secondary" className="w-full" onClick={google} disabled={busy}>
-        <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5">
+        <svg aria-hidden="true" viewBox="0 0 24 24" className="size-5">
           <path fill="#EA4335" d="M12 10.2v3.9h5.5c-.2 1.3-1.6 3.9-5.5 3.9-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.3 14.6 2.3 12 2.3 6.6 2.3 2.3 6.6 2.3 12s4.3 9.7 9.7 9.7c5.6 0 9.3-3.9 9.3-9.5 0-.6-.1-1.1-.2-1.6H12z" />
         </svg>
         Continue with Google
       </Button>
 
-      <div className="flex items-center gap-3 text-xs text-slate">
+      <div className="flex items-center gap-3 text-xs text-fg-3">
         <span className="h-px flex-1 bg-line" /> or <span className="h-px flex-1 bg-line" />
       </div>
 
-      <form onSubmit={submit} className="space-y-3" noValidate>
-        <p className="text-sm font-semibold text-navy">{title}</p>
+      <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate>
+        <p className="text-sm font-semibold text-fg">{title}</p>
         <Field label="Email" htmlFor="email">
           <Input
             id="email"
@@ -149,20 +149,20 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
         </Button>
       </form>
 
-      <div className="flex flex-col gap-2 text-sm">
+      <div className="flex flex-col items-start gap-2 text-sm">
         {mode !== "signin" ? (
-          <button type="button" className="text-left text-brand hover:underline" onClick={() => reset("signin")}>
-            ← Sign in with email & password
+          <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("signin")}>
+            Back to sign in with email and password
           </button>
         ) : (
           <>
-            <button type="button" className="text-left text-brand hover:underline" onClick={() => reset("forgot")}>
+            <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("forgot")}>
               Forgot password?
             </button>
-            <button type="button" className="text-left text-brand hover:underline" onClick={() => reset("signup")}>
+            <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("signup")}>
               Invited but no password yet? Create one
             </button>
-            <button type="button" className="text-left text-ink hover:underline" onClick={() => reset("link")}>
+            <button type="button" className="text-left font-medium text-fg-2 hover:text-fg hover:underline" onClick={() => reset("link")}>
               Email me a one-time link instead
             </button>
           </>

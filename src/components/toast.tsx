@@ -158,10 +158,15 @@ export function ActionForm({
   id?: string;
   children: React.ReactNode;
 }) {
-  const [state, formAction] = useActionState(action, null);
+  const [state, formAction, isPending] = useActionState(action, null);
   const toast = useToast();
   const router = useRouter();
   const last = React.useRef<ActionResult>(null);
+
+  // Footer buttons outside the <form> (form="id") can't use useFormStatus – tell them here.
+  React.useEffect(() => {
+    if (id) window.dispatchEvent(new CustomEvent("qf-form-pending", { detail: { id, pending: isPending } }));
+  }, [id, isPending]);
 
   React.useEffect(() => {
     if (!state || state === last.current) return;
@@ -216,7 +221,18 @@ export function SubmitButton({
   form?: string;
   className?: string;
 }) {
-  const { pending } = useFormStatus();
+  const status = useFormStatus();
+  const [external, setExternal] = React.useState(false);
+  React.useEffect(() => {
+    if (!form) return;
+    const on = (e: Event) => {
+      const d = (e as CustomEvent<{ id: string; pending: boolean }>).detail;
+      if (d.id === form) setExternal(d.pending);
+    };
+    window.addEventListener("qf-form-pending", on);
+    return () => window.removeEventListener("qf-form-pending", on);
+  }, [form]);
+  const pending = status.pending || external;
   return (
     <Button type="submit" variant={variant} form={form} disabled={pending} aria-busy={pending} className={className}>
       {pending ? pendingText : children}

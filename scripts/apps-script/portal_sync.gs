@@ -4,7 +4,8 @@
  * SETUP (once the portal is deployed):
  *  1. Apps Script editor → + (Add file) → Script → name it "portal_sync" → paste this file.
  *  2. Project Settings (gear) → Script properties → add:
- *       PORTAL_IMPORT_URL     = https://<portal-domain>/api/applicants/import
+ *       PORTAL_IMPORT_URL     = https://<portal-domain>/api/leads/import
+ *       (the old /api/applicants/import URL still works and does the same thing)
  *       PORTAL_IMPORT_SECRET  = <same value as IMPORT_SECRET in the portal env, 32+ chars>
  *  3. In create_internship_form.gs → processResponse_(), right after
  *       `if (sendMail) sh.getRange(rowNum, COL.ack).setValue(sendAck_(rec));`
@@ -13,6 +14,8 @@
  *  4. Run `testPortalConnection` once (Execution log should say "OK – portal reachable"; 401 = wrong secret).
  *  5. Run `backfillPortal` once to send all existing rows.
  * The sync never blocks the form flow: failures are logged, not thrown.
+ * The portal answers { ok: true, codes: [{ form_response_id, code }] }: the portal lead code
+ * (QF-<AY>-<SEQ4>) is written to the Execution log. Re-sending a response updates the same lead.
  */
 
 const PORTAL_BATCH_SIZE = 100;
@@ -65,16 +68,36 @@ function postPortal_(bodyObj) {
     headers: { 'x-qf-timestamp': ts, 'x-qf-signature': 'sha256=' + signPortal_(cfg.secret, ts, body) },
     muteHttpExceptions: true,
   });
-  return { code: res.getResponseCode(), text: res.getContentText().slice(0, 300) };
+  const text = res.getContentText();
+  // Successful replies carry the codes (up to 100 per batch), so keep them whole; trim error text for the log.
+  return { code: res.getResponseCode(), text: res.getResponseCode() === 200 ? text : text.slice(0, 300) };
 }
 
-/** Called from processResponse_ for every new application. Never throws. */
+/** Portal codes from a 200 response body ([] when the body is not the expected JSON). */
+function portalCodes_(text) {
+  try {
+    const body = JSON.parse(text);
+    return body && body.codes ? body.codes : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+/** Called from processResponse_ for every new application. Never throws. Returns the portal code or ''. */
 function pushToPortal_(rec) {
   try {
     const r = postPortal_(recToPayload_(rec));
-    if (r.code !== 200) Logger.log('Portal sync failed for ' + rec.id + ': ' + r.code + ' ' + r.text);
+    if (r.code !== 200) {
+      Logger.log('Portal sync failed for ' + rec.id + ': ' + r.code + ' ' + r.text);
+      return '';
+    }
+    const codes = portalCodes_(r.text);
+    const code = codes.length ? String(codes[0].code) : '';
+    Logger.log('Portal sync OK for ' + rec.id + ': portal code ' + (code || '(not returned)'));
+    return code;
   } catch (err) {
     Logger.log('Portal sync error for ' + rec.id + ': ' + err.message);
+    return '';
   }
 }
 
@@ -97,8 +120,14 @@ function backfillPortal() {
   for (let i = 0; i < recs.length; i += PORTAL_BATCH_SIZE) {
     const chunk = recs.slice(i, i + PORTAL_BATCH_SIZE).map(recToPayload_);
     const r = postPortal_({ applicants: chunk });
-    Logger.log('Batch ' + (i / PORTAL_BATCH_SIZE + 1) + ': ' + r.code + ' ' + r.text);
-    if (r.code === 200) sent += chunk.length;
+    if (r.code === 200) {
+      sent += chunk.length;
+      const codes = portalCodes_(r.text);
+      Logger.log('Batch ' + (i / PORTAL_BATCH_SIZE + 1) + ': 200, ' + codes.length + ' leads saved');
+      codes.forEach(function (c) { Logger.log('  ' + c.form_response_id + ' -> ' + c.code); });
+    } else {
+      Logger.log('Batch ' + (i / PORTAL_BATCH_SIZE + 1) + ': ' + r.code + ' ' + r.text);
+    }
   }
   Logger.log('Backfill done: ' + sent + ' / ' + recs.length + ' rows sent.');
 }
