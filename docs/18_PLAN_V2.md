@@ -1,7 +1,7 @@
-# 18 – Plan v2.2: Internship Portal (CRM · Students · Batches · Payments · Documents)
+# 18 – Plan v2.4: Internship Portal (CRM · Students · Batches · Payments · Documents)
 
-**Status:** v2.3 for final review (27-Nov-2026) – adds the batch workspace, batch plan vs live track (§18) and project classification (§19). The build starts after the owner freezes it. Nothing below is implemented yet.
-**Wireframes:** https://claude.ai/artifact/CVxiNwpDfhSAjdQMLFc1Lb (private – share from its Share menu).
+**Status:** v2.4 for final review (27-Nov-2026). v2.3 added the batch workspace, batch plan vs live track (§18) and project classification (§19). **v2.4: the database, flows, pipelines and action map are specified in [`19_DB_FLOWS_PIPELINES.md`](19_DB_FLOWS_PIPELINES.md); where it conflicts with §5, §7, §8, §10, §12 or §17 below, doc 19 wins.** The build starts after the owner freezes it. Nothing below is implemented yet.
+**Final screens (clickable preview):** https://claude.ai/artifact/7XZ36hmJZDDeV6tSZhbZ7Q · older wireframes: https://claude.ai/artifact/CVxiNwpDfhSAjdQMLFc1Lb (both private – share from the Share menu).
 This document replaces the mentor-led parts of docs 01–09 wherever they conflict.
 
 ---
@@ -50,7 +50,7 @@ This document replaces the mentor-led parts of docs 01–09 wherever they confli
 | Calls / emails / notes | **Logged from Lead detail or Student 360**, stored once in `activities` | Timelines everywhere |
 | Course + 30/60/90 plans, price, benefits | **Settings → Courses** | Batches, convert form, offer letter |
 | Batch (dates, schedule, links, capacity) | **Batches → Batch detail → Edit** | Student 360, student app, documents |
-| **Assignment** (student ↔ batch, type, dates, mode, status) | **Enrolment panel** (opened from Student 360 *or* "Assign students" on the batch – same form, same record) | Roster, payments, documents, dashboard |
+| **Assignment** (student ↔ batch, type, dates, mode, status) | **Student 360 → Enrolment** only (the batch Students tab links to the Students list filtered to "Not assigned") | Roster, payments, documents, dashboard |
 | Stipend agreement (amount, from, note) | **Enrolment panel → Stipend agreement** | Payments, Student 360 |
 | Money entries (fee, stipend month, refund) | **Payments** | Student 360 → Payments tab, batch roster, dashboard |
 | Work given to a batch + completion | **Batch detail → Work log** | Student 360 → Work tab, student app |
@@ -76,7 +76,7 @@ Work item   Given → per student: Done · Late · Missing · Excused
 ## 6. Screens (sitemap)
 
 **Admin:** Dashboard · Leads (board + list) · Lead detail · **Students** (directory + "Add student") · **Student 360** (Overview · Profile · Application · Enrolments · Payments · Work · Projects · Documents · Files · Timeline) · **Batches** (list · create · batch detail with roster, "Assign students", work log, sessions) · **Payments** (ledger + month view) · **Projects** · **Documents** (to issue · issued · acceptances · verification log) · **Settings** (org · courses & plans · numbering · templates · signatories · local files root · payment instructions · admins).
-**Student app (mobile):** Home · My batch (links, schedule, work status) · Payments (view) · **Documents** (accept offer / T&C / consent, download issued PDFs) · Profile.
+**Student app (mobile):** Home · My plan · **Documents** (accept offer / T&C / consent, download issued PDFs) · Profile. (No payments screen for students – v2.4.)
 **Public:** `/v/<token>` verify page · `/verify` (certificate number + surname).
 
 ## 7. Data model (fields)
