@@ -1,213 +1,244 @@
-# 18 – Plan v2: CRM + HRMS + PMS + Student 360 (for review)
+# 18 – Plan v2.2: Internship Portal (CRM · Students · Batches · Payments · Documents)
 
-Status: **v2.1 – owner decisions applied (27-Nov-2026, §14). Freeze after the final screen review, then build.** Nothing here is implemented yet.
+**Status:** v2.2 for final review (27-Nov-2026). The build starts after the owner freezes it. Nothing below is implemented yet.
+**Wireframes:** https://claude.ai/artifact/CVxiNwpDfhSAjdQMLFc1Lb (private – share from its Share menu).
+This document replaces the mentor-led parts of docs 01–09 wherever they conflict.
 
-> **Big simplification (v2.1):** the portal stores **no files**. Screenshots, KYC, proofs and generated letters live on the office PC in one fixed folder tree (§6.9). The portal records the details, a payment note and the exact local file path, which keeps the free Vercel/Supabase plans enough.
-Supersedes the mentor-led parts of docs 01–05 where they conflict.
+---
 
-## 1. What changed (owner decisions, 27-Nov-2026)
+## 1. Decisions in force
 
 | # | Decision |
 |---|---|
-| V2-1 | Google Form gives **leads**. The team finalises by **call / email**. The portal is the CRM for that. |
-| V2-2 | **No mentor role.** Staff = **admin** (admin = super admin = mentor). Other users = **students**. |
-| V2-3 | Students come in **3 types: Paid, Free, Stipend**. |
-| V2-4 | **Paid and Free take the same course in the same batch.** Free seats are for friends (complimentary). |
-| V2-5 | **Stipend** = strong students: the same batch **plus** live project work, stipend **₹0 to a capped amount per month**. |
-| V2-6 | HR-style records: who is who, dates, mode, payments and stipends (note + locally saved screenshot), kept **monthly**. |
-| V2-7 | Hosting stays on **Vercel**. |
+| V2-1 | Google Form = **leads**. The team finalises by call / email. The portal is the CRM for that. |
+| V2-2 | Roles: **admin** (all staff) and **student**. No mentor role. 1–2 admins carry an **owner** flag (D-21). |
+| V2-3 | Students are **Paid**, **Free** or **Stipend**. Paid and Free do the same course in the same batch. Free seats are for friends. Stipend = strong students, same batch + live project. |
+| V2-4 | Courses are sold as **30 / 60 / 90-day plans**, each with its own price, benefits and batches (D-27). |
+| V2-5 | **Money is tracking only.** The fee is a one-time small deposit. The stipend amount is agreed by email and entered by an admin. No bank details, no formulas (D-22, D-23, D-24). |
+| V2-6 | **No files in the cloud.** Screenshots, KYC and signed copies live in one fixed folder tree on the office PC. The portal keeps paths + notes (D-25). |
+| V2-7 | **Batches are track-only.** Teaching, tasks and material go through free external tools (§11). The portal records what was given and who completed it. |
+| V2-8 | **All official documents come from the portal** in fixed formats: offer letter, T&C / consent acceptance, joining letter, internship certificate, experience letter, LOR. Each is unique and verifiable by QR, and every step is tracked (§9). |
+| V2-9 | **Fees and stipends are one Payments section** with clear classification (§10). |
+| V2-10 | **Students are created in one place and *assigned* to batches** (never "added" inside a batch) (§8). |
+| V2-11 | **Single source of truth:** every fact is edited in exactly one screen. Everywhere else shows it read-only, with a link to that screen (§4). |
+| V2-12 | Vercel **Hobby** (free) while testing, **Pro** after go-live (D-28). Supabase free tier. |
 
-## 2. Roles
+## 2. Design principles
+1. **One owner per fact.** Each field has one "owner screen" where it is created and edited. Other screens show it and link to the owner screen (§4).
+2. **Nothing important is hard-deleted.** Records are *archived*, *withdrawn* or *revoked* with a reason. Only an owner can permanently delete, and only data with no money or document attached.
+3. **History is automatic.** Status changes, assignments, type changes, document actions and money entries write to the timeline (`activities`) and the `audit_log`.
+4. **The portal tracks; tools deliver.** Classes, tasks and files run on free tools. The portal stores links, dates and completion.
+5. **Documents are generated, never typed.** Data comes from the student/enrolment record. Fix the record, then re-issue the document.
+6. **Mobile-first for students; dense tables for admins.**
 
-| Role | Who | Can |
+## 3. Roles
+
+| Role | Can |
+|---|---|
+| **admin** | Everything except owner-only actions |
+| **admin + owner** | Plus: permanently delete, revoke issued documents, change numbering/templates/signatories, export all data |
+| **student** | Their own record only: profile, batch info and links, their work status, their payments (view), **accept offer / T&C / consent**, download their issued documents |
+| **public** | Verify page only (QR or code + name) |
+
+## 4. Single source of truth – who owns what
+
+| Fact | Owner screen (create / edit) | Shown read-only in (links back) |
 |---|---|---|
-| `admin` | All Quellflow staff | Everything: leads, students, batches, money, projects, documents, settings |
-| `student` | Joined students of all 3 types | Their own record only: batch, schedule, tasks, daily updates, their fees **or** stipend, their documents, KYC uploads |
-| public | Anyone | Certificate verify page only |
+| Person details (name, phone, college, emergency contact) | **Student 360 → Profile** | Leads (after conversion), batch roster, payments, documents |
+| Application answers | **Lead detail** (from the form; never edited) | Student 360 → Application tab |
+| Lead stage, owner, follow-up | **Leads** | Dashboard |
+| Calls / emails / notes | **Logged from Lead detail or Student 360**, stored once in `activities` | Timelines everywhere |
+| Course + 30/60/90 plans, price, benefits | **Settings → Courses** | Batches, convert form, offer letter |
+| Batch (dates, schedule, links, capacity) | **Batches → Batch detail → Edit** | Student 360, student app, documents |
+| **Assignment** (student ↔ batch, type, dates, mode, status) | **Enrolment panel** (opened from Student 360 *or* "Assign students" on the batch – same form, same record) | Roster, payments, documents, dashboard |
+| Stipend agreement (amount, from, note) | **Enrolment panel → Stipend agreement** | Payments, Student 360 |
+| Money entries (fee, stipend month, refund) | **Payments** | Student 360 → Payments tab, batch roster, dashboard |
+| Work given to a batch + completion | **Batch detail → Work log** | Student 360 → Work tab, student app |
+| Projects & tasks (stipend) | **Projects** | Student 360 → Projects tab, student app |
+| Issued documents | **Documents** | Student 360 → Documents tab, student app, public verify |
+| Local file paths | **Recorded where the file belongs** (payment, KYC, document) and listed in `local_files` | Student 360 → Files tab |
 
-**Recommendation (decision D-21):** keep a hidden **`is_owner`** flag on 1–2 admin accounts for irreversible actions only: delete data, revoke documents, change numbering, export everything. For daily work all admins are equal.
-
-## 3. Student types
-
-| | **Paid** | **Free** | **Stipend** |
-|---|---|---|---|
-| Course and batch | Same course, same batch | Same as Paid | Same batch **+ live project** |
-| Money | One-time fee, treated as a **deposit**, usually < ₹5,000. **Tracking only**: amount, status, date, payment note | ₹0. Reason recorded (friend / referral) and approved by an admin | Amount agreed by email. The admin enters it per month (no cap, no formula) |
-| Monthly HR record | Fee received or pending | Attendance and progress | Monthly row: amount, paid on, payment note, screenshot saved ✓ |
-| Documents | Joining letter, certificate, project certificate | Joining letter, certificate | Offer letter, certificate, **experience letter** |
-| Visible to the student | Their own fee amount and status (view only) | Nothing about money | Their own monthly stipend status (view only) |
-
-**Payment flow (no uploads):** the student pays by GPay and sends the screenshot on WhatsApp. The admin saves it on the PC under the file name the portal shows, then marks the fee received (or the stipend paid) with a note such as *"GPay to Quellflow HDFC ••21 · checked by Dharmik · UTR 6123…"*.
-
-Changing type (for example Free → Stipend after strong work) is allowed. It is logged and takes effect from a date.
-
-## 4. Modules
-
-| Module | Category | What it covers |
-|---|---|---|
-| **Leads & follow-ups** | CRM | Pipeline from the form, call/email log, next follow-up, convert to student |
-| **Students** | HRMS + Student 360 | Directory, full profile, KYC, dates, status, timeline |
-| **Batches & courses** | Academic | Course catalogue, batch creation, roster, schedule |
-| **Fees** | Finance (Paid) | One-time deposit per paid student: amount, status, date, payment note, local screenshot path (tracking only) |
-| **Stipends** | Payroll (Stipend) | Agreed amount, a monthly row per student, mark paid with a note, local screenshot path |
-| **Attendance & daily updates** | HRMS | Daily presence from updates and live sessions, leave, monthly summary |
-| **Projects** | PMS | Live projects, members, kanban tasks, weekly progress |
-| **Documents** | Docs | Offer / joining / certificate / experience / LOR generated on demand, saved locally, QR verify from the DB |
-| **Dashboard & reports** | Analytics | Funnel, active students by type, fees collected vs due, stipend payable |
-| **Settings** | Admin | Org, numbering, signatories, course plans (30/60/90 + price + benefits), local files root, payment instructions, lead sources, admins |
-| **Student portal** | Self-service | My batch, today, tasks, daily update, fees/stipend, documents, profile |
+Rule for the build: a component that shows a fact it does not own renders a **"Edit in …" link**, never an inline editor.
 
 ## 5. Lifecycles
 
 ```
-Lead:     New → Contacted → Interested → Follow-up → Offer sent → Joined (converted)
-                      ↘ Not interested · No response · Not eligible   (closed, with reason)
-Student:  Offer sent → Confirmed → Active → Completed
-                                      ↘ On hold → Active  ·  Dropped / Terminated (with reason)
-Fee:      Pending → Received                 (Waived for Free seats; Refunded with a note)
-Stipend:  Pending (row auto-created on the 1st) → Paid (note + screenshot saved locally) · On hold · Skipped
-Task:     Backlog → To do → In progress → Review → Done
+Lead        New → Contacted → Interested → Follow-up → Offer sent → Converted
+                        ↘ Not interested · No response · Not eligible   (closed, reason required)
+Student     Created (from a lead or manually) → Active student → Alumni        · Archived
+Enrolment   Assigned → Offer sent → Offer accepted → Active → Completed
+                 ↘ Withdrawn (before start) · Dropped (after start) · Transferred (to another batch) – reason required
+Money       Expected → Done   · On hold · Waived · Cancelled        (refund = its own entry)
+Document    Draft → Issued → (Accepted, for offer/T&C/consent) → Revoked / Superseded
+Work item   Given → per student: Done · Late · Missing · Excused
 ```
 
-## 6. Data – tables and fields
+## 6. Screens (sitemap)
 
-`*` = required. All tables: `id`, `created_at`, `updated_at`, `created_by`. Money is in INR with paise precision. Dates are stored in UTC and shown in IST.
+**Admin:** Dashboard · Leads (board + list) · Lead detail · **Students** (directory + "Add student") · **Student 360** (Overview · Profile · Application · Enrolments · Payments · Work · Projects · Documents · Files · Timeline) · **Batches** (list · create · batch detail with roster, "Assign students", work log, sessions) · **Payments** (ledger + month view) · **Projects** · **Documents** (to issue · issued · acceptances · verification log) · **Settings** (org · courses & plans · numbering · templates · signatories · local files root · payment instructions · admins).
+**Student app (mobile):** Home · My batch (links, schedule, work status) · Payments (view) · **Documents** (accept offer / T&C / consent, download issued PDFs) · Profile.
+**Public:** `/v/<token>` verify page · `/verify` (certificate number + surname).
 
-### 6.1 People
-**profiles** (one per login): `role*` (admin|student) · `is_owner` · `full_name*` · `display_name_on_docs` · `email*` · `phone*` · `whatsapp` · `dob` · `gender` (optional) · `address`, `city`, `state`, `pincode` · `college`, `university`, `course`, `branch`, `year_of_study`, `graduation_year`, `college_roll_no` · `linkedin_url`, `github_url`, `portfolio_url` · `photo_path` · `emergency_name`, `emergency_phone`, `emergency_relation` · `is_active*`
+## 7. Data model (fields)
 
-**local_files** (a register of files kept on the PC – nothing uploaded): `profile_id` · `entity` (kyc, fee, stipend, document, project, other) + `entity_id` · `kind*` (photo, college_id, id_proof, college_noc, fee_screenshot, stipend_screenshot, offer_letter, certificate…) · `local_path*` (generated, §6.9) · `saved*` (yes/no – admin ticks it) · `received_via` (whatsapp, email, in_person) · `note`
+`*` = required. Every table has `id`, `created_at`, `updated_at`, `created_by`, plus `archived_at` where archiving applies. Dates are stored in UTC and shown in IST.
 
-### 6.2 CRM
-**leads** (replaces `applicants`; all form answers kept): `candidate_code*` · `form_response_id` · all form fields (name, email, phone, city, college, course, year, role, skills, portfolio, CV, start, hours, mode, extra) · `source*` (google_form, referral, college_tpo, whatsapp, linkedin, walk_in, other) · `source_detail` · **`stage*`** · `owner_id` (admin handling it) · `priority` (hot, warm, cold) · `expected_type` (paid, free, stipend) · `next_follow_up_at` · `last_contacted_at` · `closed_reason` · `profile_id` (after joining)
+**profiles** – `role*` (admin | student) · `is_owner` · `student_code` (= Google Form Candidate ID, e.g. QF-2627-0012; generated for manual adds) · `full_name*` · `name_on_documents` · `email*` · `phone*` · `whatsapp` · `dob` · `gender` · `address`, `city`, `state`, `pincode` · `college`, `university`, `course`, `branch`, `year_of_study`, `graduation_year`, `college_roll_no` · `linkedin_url`, `github_url`, `portfolio_url` · `emergency_name`, `emergency_phone`, `emergency_relation` · `is_active*` · `archived_at`
 
-**activities** (one log for leads and students = the 360 timeline): `lead_id` or `profile_id*` · `kind*` (call, email, whatsapp, meeting, note) · `direction` (outgoing, incoming) · `outcome` (connected, no_answer, busy, wrong_number, interested, not_interested, callback, other) · `summary*` · `duration_min` · `follow_up_at` · `created_by*`
+**leads** – all form answers (read-only) · `candidate_code*` · `form_response_id*` · `source*` · `source_detail` · `stage*` · `owner_id` · `priority` · `expected_type` · `next_follow_up_at` · `last_contacted_at` · `closed_reason` · `profile_id` (set on conversion)
 
-### 6.3 Academic
-**courses**: `code*` (AA, GA, FS, SE, QA, DO, ML…) · `name*` · `description` · `syllabus_url` · `active`
-**course_plans** (each course is sold as 30 / 60 / 90-day plans – D-27): `course_id*` · `duration_days*` (30, 60, 90) · `price_inr*` · `benefits*` (list, e.g. "Certificate", "+ mini project", "+ live project + LOR on merit") · `active`
+**activities** (one timeline for everything) – `lead_id` and/or `profile_id` · `enrollment_id` · `kind*` (call, email, whatsapp, meeting, note, **system**) · `direction` · `outcome` · `summary*` · `follow_up_at` · `created_by`
 
-**batches**: `code*` (auto `AA30-2612-1` = course + days - YYMM - n) · `name*` · `course_plan_id*` · `start_date*` · `duration_days*` (from the plan) · `end_date` (computed: start + days − 1) · `schedule_days` (Mon–Fri) · `session_time` (e.g. 6–7 pm IST) · `live_link` · `whatsapp_group_link` · `capacity` · `status*` (planned, open, running, completed, cancelled) · `coordinator_id` (admin) · `notes`
+**courses** – `code*` · `name*` · `description` · `active`
+**course_plans** – `course_id*` · `duration_days*` (30/60/90) · `price_inr*` · `benefits*` (list) · `certificate_wording` · `active`
 
-**enrollments** (a student in a batch): `profile_id*` · `lead_id` · `batch_id*` · **`type*`** (paid, free, stipend) · `status*` · `offer_date` · `joining_date` (actual first day) · `start_date*` · `planned_end_date*` · `actual_end_date` · `mode*` (remote, hybrid, on-site) · `weekly_hours` · `college_internship_required` (yes/no) · `college_noc_received` · `free_reason` (when Free) · `approved_by` (when Free) · `drop_reason` · `final_grade` · `certificate_status`
-**enrollment_type_changes**: `enrollment_id*` · `from_type*` · `to_type*` · `effective_from*` · `reason*` · `changed_by*`
+**batches** – `code*` (auto, e.g. `AA30-2612-1`) · `name*` · `course_plan_id*` · `start_date*` · `end_date` (auto) · `schedule_days` · `session_time` · `capacity` · `status*` (planned, open, running, completed, cancelled) · `coordinator_id` · **links:** `whatsapp_url`, `classroom_url`, `meet_url`, `playlist_url`, `drive_url`, `repo_url` (§11)
 
-### 6.4 Fees (Paid) – tracking only (D-24, D-25)
-**fee_records** (one per paid enrolment): `enrollment_id*` · `amount*` (pre-filled from the course plan price, editable) · `status*` (pending, received, waived, refunded) · `received_on` · `payment_note` (free text: "GPay to HDFC ••21 · checked by Dharmik · UTR …") · `screenshot_saved` (yes/no) · `local_path` (generated) · `refund_note`
-No instalments, receipts, GST or verification workflow.
+**enrollments** (= assignment of one student to one batch) – `profile_id*` · `batch_id*` · `lead_id` · `type*` (paid, free, stipend) · `status*` · `assigned_on*` · `offer_sent_on` · `offer_accepted_on` · `start_date*` (defaults to batch) · `end_date*` (defaults to batch) · `actual_end_date` · `mode*` (remote, hybrid, on-site) · `weekly_hours` · `free_reason` + `approved_by` (Free) · `college_internship_required` · `exit_reason` (withdrawn/dropped/transferred) · `transferred_to_id` · `completion_result` (completed, completed_with_distinction, not_completed) · `final_remarks`
+  - One **active** enrolment per student per batch (database constraint). The same student can do another plan later, which creates a new enrolment.
+**enrollment_type_changes** – `enrollment_id*` · `from_type*` · `to_type*` · `effective_from*` · `reason*`
+**stipend_agreements** – `enrollment_id*` · `monthly_amount*` · `effective_from*` · `effective_to` · `agreed_via_note` ("email 12 Nov")
 
-### 6.5 Stipend (D-22, D-23)
-**stipend_terms**: `enrollment_id*` · `monthly_amount*` (agreed by email, entered by the admin – no cap) · `effective_from*` · `effective_to` · `terms_note` (where it was agreed, e.g. "email 12 Nov") — **no bank details stored**
-**stipend_payouts** (one row per stipend student per month, created on the 1st): `enrollment_id*` · `month*` (2026-11) · `amount*` (pre-filled from the terms, editable – pro-rata or hold decided by the admin) · `status*` (pending, paid, on_hold, skipped) · `paid_on` · `payment_note` · `screenshot_saved` · `local_path` · `attendance_pct` (shown for information only)
+**money_entries** (single ledger – §10) – `enrollment_id*` · `direction*` (in, out) · `category*` (course_fee, fee_refund, stipend, bonus, reimbursement, other) · `period_month` (stipend) · `amount*` · `status*` (expected, done, on_hold, waived, cancelled) · `expected_on` · `done_on` · `payment_note` · `screenshot_saved` · `local_path` · `related_entry_id` (refund → fee)
 
-### 6.6 Attendance & updates
-**daily_updates**: `enrollment_id*` · `date*` · `done*` · `next` · `blockers` · `hours` · `links` – an update on a working day counts as *present*
-**attendance**: `enrollment_id*` · `date*` · `status*` (present, absent, leave, half_day, holiday) · `source*` (daily_update, live_session, manual) · `note`
-**leave_requests**: `enrollment_id*` · `from_date*` · `to_date*` · `reason*` · `status*` (pending, approved, rejected) · `decided_by`
-**live_sessions**: `batch_id*` · `title*` · `starts_at*` · `ends_at` · `meet_link` · `recording_url` · `host_id`
+**work_items** (per batch) – `batch_id*` · `kind*` (session, task, assignment, test, resource, announcement) · `title*` · `given_on*` · `due_on` · `channel*` (whatsapp, classroom, meet, youtube, drive, github) · `link` · `max_marks`
+**work_status** – `work_item_id*` · `enrollment_id*` · `status*` (done, late, missing, excused) · `marks` · `note` – one row per student per item (bulk-marked from a grid)
+**attendance** – `enrollment_id*` · `date*` · `status*` (present, absent, leave, half_day) · `source` (live_session, manual) – sessions are `work_items` of kind *session*
 
-### 6.7 Projects (PMS)
-**projects**: `code*` · `name*` · `kind*` (internal, client, training) · `client_name` · `description` · `start_date` · `due_date` · `status*` (planned, active, on_hold, done) · `lead_admin_id` · `repo_url`, `board_url`
-**project_members**: `project_id*` · `enrollment_id*` · `role` (developer, designer, analyst, bd…) · `hours_per_week`
-**tasks**: `project_id*` · `title*` · `description` · `status*` · `priority` (low, medium, high, urgent) · `assignee_enrollment_id` · `due_date` · `estimate_hours` · `spent_hours` · `sort`
-**task_comments**: `task_id*` · `author_id*` · `body*`
+**projects / project_members / tasks** – as before, tracking only (status, assignee, due, link).
 
-### 6.8 Documents & settings
-**documents** (as in doc 08, adds `joining_letter`). The portal **generates the PDF on demand** (download), keeps only the number, data snapshot, SHA-256 and the `local_path` where the admin saved it. The QR verify page works from the database, so no PDF storage is needed.
-**org_settings** adds: `local_files_root` (e.g. `D:\Quellflow-Records`) · `file_name_patterns` (editable, §6.9) · `payment_instructions` (text shown to paid students, e.g. "Pay by GPay to … and WhatsApp the screenshot to …") · `lead_sources[]` · `working_days` (Mon–Fri) · `holidays[]`
+**document_templates** – `type*` · `version*` · `title*` · `body_template*` (fixed text with `{placeholders}`) · `requires_acceptance` · `requires_signatory` · `active` – only owners edit; every change is a new version
+**documents** – `type*` · `template_id*` + `template_version*` · `profile_id*` · `enrollment_id` · `number*` (human, e.g. `QF-CERT-2627-AA-0007`) · `verify_token*` (random, unguessable, in the QR) · `data*` (frozen snapshot of every field printed) · `content_hash*` (SHA-256 of the snapshot) · `pdf_hash` (SHA-256 of the generated PDF) · `status*` (draft, issued, accepted, revoked, superseded) · `issued_by`, `issued_at` · `signatory_id` · `revoked_reason` · `supersedes_id` · `local_path` · `shared_via` + `shared_at` (whatsapp, email, in person)
+**document_acceptances** (e-acceptance of offer / T&C / consent) – `document_id*` · `profile_id*` · `typed_full_name*` · `checkbox_text*` · `accepted_at*` · `ip_address` · `user_agent` · `content_hash_at_acceptance*`
+**verification_scans** – `document_id` · `scanned_at*` · `method` (qr, number_search) · `result` (valid, revoked, not_found) · `ip_hash` · `country`
 
-### 6.9 Local files convention (fixed, shown by the portal with a copy button)
-```
-<local_files_root>\<academic year>\
-  students\<STUDENT-CODE>_<First-Last>\        e.g. QF-2627-0012_Riya-Shah
-    01_kyc\        PHOTO_<code>.jpg · COLLEGEID_<code>.jpg · IDPROOF_<code>.jpg · NOC_<code>.pdf
-    02_fees\       FEE_<code>_<YYYY-MM-DD>_<amount>.jpg
-    03_stipend\    STP_<code>_<YYYY-MM>_<amount>.jpg
-    04_documents\  <DOCTYPE>_<doc-number with - instead of />.pdf   e.g. OFR_QF-OFR-2627-0007.pdf
-    05_projects\   (any project files)
-    06_other\
-  batches\<BATCH-CODE>\                         attendance exports, session notes
-  payroll\<YYYY-MM>\                            monthly stipend export (CSV from the portal)
-```
-Rules: the student code is the Google Form **Candidate ID** (QF-2627-0012) and never changes. Names use `-` instead of spaces, with no special characters. The portal builds every path from the root in Settings, so moving the root only means changing one setting. **Back up this folder** (e.g. OneDrive / Google Drive sync) – it is the only copy of proofs.
+**local_files** – `profile_id` · `entity` + `entity_id` · `kind*` · `local_path*` · `saved*` · `received_via` · `note`
+**org_settings** – organisation details · `local_files_root` · `file_name_patterns` · `payment_instructions` · `verify_base_url` · `working_days` · `holidays` · `lead_sources`
 
-## 7. Batches – rules
-- A batch = **one course + one start date**. Paid, Free and Stipend students all sit in it. Stipend students also join ≥1 project.
-- **Create batch:** choose a course plan (e.g. AI Automation · 30 days) → start date → the end date fills in automatically → days/time of the live session → capacity → links. The code is generated (`AA30-2612-1`).
-- **Add students:** from a lead (Convert → choose batch + type) or from the batch roster ("Add student").
-- The roster shows a type badge, status, joined date, attendance %, fee/stipend status, and project for stipend students.
-- **"Days of paid internship"** = `duration_days` of the batch (calendar days). Progress = day X of N.
+## 8. Add / assign / update / remove – rules
 
-## 8. Monthly cycles (automated, Vercel Cron)
+| Entity | Add | Update | Remove |
+|---|---|---|---|
+| Lead | Automatic from the form, or "Add lead" | Stage, owner, priority, follow-up (answers are read-only) | Close with a reason. Never deleted (owner can delete spam) |
+| **Student** | **Only from Students** → "Add student", or **Convert** on a lead (fills the same form) | Student 360 → Profile | **Archive** (keeps history). Delete only by an owner, only with no enrolments, money or documents |
+| **Assignment (enrolment)** | **Assign** an existing student: from Student 360 → "Assign to batch", or Batch detail → "Assign students" (pick from list, set type per student). A batch never creates students | Enrolment panel: type (logged as a type change), dates, mode, status | **Unassign** = Withdrawn (before start) or Dropped (after start), reason required. **Transfer** = closes this enrolment as Transferred + creates the new one, money entries and documents stay linked. Never deleted |
+| Batch | Batches → Create | Batch detail → Edit (dates locked once running, unless owner) | Cancel (only with no active enrolments) → archived |
+| Course / plan | Settings → Courses | Price/benefits changes apply to future assignments only (existing enrolments keep their snapshot) | Deactivate |
+| Money entry | Automatic (fee expected on assignment for Paid; stipend rows on the 1st) or "Add entry" | Amount, status, note, screenshot ✓ | Cancel with a reason (no delete) |
+| Work item | Batch detail → Work log → "Add" | Edit title/date/link | Delete only while no status is marked; otherwise archive |
+| Document | Automatic drafts (§9) or "Create document" | **Draft only.** Issued documents are frozen; to change them, **re-issue** (creates a new version and marks the old one Superseded) | Revoke (owner, reason, shown on the verify page) |
+
+Guards built into the database: a student can't be assigned twice to the same batch · capacity warning · a Paid assignment needs a fee amount · a Stipend assignment needs an agreement · a certificate needs `completion_result` · type changes need a reason.
+
+## 9. Documents – issue, sign, verify, track
+
+### 9.1 Document set and triggers
+| Document | Who | Created as a draft when | Acceptance by the student |
+|---|---|---|---|
+| **Offer letter** (+ terms of the programme) | All types | Enrolment is assigned | ✅ Accept in the portal |
+| **Terms & Conditions / Code of conduct** | All | With the offer letter | ✅ Accept |
+| **Consent** (data use, photo/testimonial use, NDA/IP for stipend projects) | All (NDA/IP: Stipend) | With the offer letter | ✅ Accept (each consent separately) |
+| **Joining letter** (for the college) | All | Offer accepted | – |
+| **Internship certificate** (completion / with distinction) | All | Enrolment marked Completed | – |
+| **Experience letter** | Stipend (real project work) | Completed + project done | – |
+| **LOR** | On request, merit | Admin creates it | – |
+| Under-18 student | – | Guardian consent added to the offer set | Guardian name + relation typed at acceptance |
+
+### 9.2 How a document is produced
+1. **Template** (Settings → Templates): fixed wording with placeholders (`{name}`, `{course}`, `{plan_days}`, `{start}`, `{end}`, `{mode}`, `{stipend_amount}`, `{signatory}`…). Versioned, and only owners edit it.
+2. **Draft**: the portal fills it from the records (no typing). The admin can edit *only* the free-text fields the template allows (e.g. a LOR body or remarks). Wrong name or date? Fix the record and regenerate.
+3. **Issue**: freezes the data snapshot, assigns the number + random verify token, stores the hashes and records who issued it.
+4. **PDF**: a **digital (text) PDF** generated on demand with the QR, number, signatory name and signature image (from Settings). It is not stored in the cloud: the admin downloads it, saves it under the shown local path and shares it (WhatsApp/email), then marks "shared".
+5. **Changes after issue** → **Re-issue**: new number version, old one shown as *Superseded* on the verify page. Editing the PDF outside the portal is not "valid": the verify page shows the true data, so any edited copy is exposed.
+
+> "Editable" means editable **before issue, inside the portal**. Issued documents must be frozen, otherwise verification means nothing.
+
+### 9.3 Student acceptance (e-sign)
+Student app → Documents → opens the offer, T&C and consent → reads them → ticks "I have read and agree" → **types full name** → Accept.
+The portal records: typed name, timestamp, IP, device, and the hash of the exact text accepted. The accepted version then shows "Accepted by Riya Shah on 1 Dec 2026, 18:42 IST" (printed on the PDF and visible to admins).
+This is click-wrap e-acceptance, which is common for internship T&C. Aadhaar eSign (paid) can be added later for stronger signatures. Have the T&C and consent wording reviewed once by the CA/lawyer.
+
+### 9.4 Anti-fake and professor verification
+- **QR → `https://<portal>/v/<random token>`** (unguessable, so nobody can browse other students' certificates).
+- The verify page shows: name, document type, course & plan, batch dates, result, issue date, number, signatory and **Valid / Revoked / Superseded**. It never shows phone or email.
+- No QR? `/verify` with **certificate number + surname**.
+- Optional: "Upload the PDF to check" compares the file hash (works for files exported by the portal).
+- Visual: fixed layout, faint watermark of the number, microtext line with the number + name.
+- **Tracking:** every scan is logged (`verification_scans`). The admin sees "verified 3 times, last on 5 Jan 2027", which is useful when a company does a background check.
+
+### 9.5 End-of-internship automation
+Batch end date → the admin opens **Batch → Close batch**: marks each student Completed / Not completed (+ remarks) → the portal **creates certificate drafts** (and experience-letter drafts for completed stipend students) → **Issue all** → **Download all (ZIP of digital PDFs)** → save to the local folders → share → mark shared.
+
+## 10. Payments (fees + stipend, one ledger)
+
+| Classification | Direction | Created | Typical status flow |
+|---|---|---|---|
+| **Course fee** (deposit) | In (from student) | Automatically on a Paid assignment (amount from the plan, editable) | Expected → Done (or Waived) |
+| **Fee refund** | Out | Manually, linked to the fee entry | Expected → Done |
+| **Stipend** (one per month) | Out (to student) | Automatically on the 1st for active Stipend enrolments (amount from the agreement, editable) | Expected → Done · On hold |
+| **Bonus / reimbursement** | Out | Manually | Expected → Done |
+
+**Payments screen:** month selector · totals **In / Out / Net** · tabs *All · Fees in · Stipends out · Refunds & others · Expected · Screenshot missing* · each row: student, batch, category, amount, status, date, note, screenshot ✓, file path (copy).
+**Mark done:** date · payment note ("GPay to HDFC ••21 · checked by Dharmik · UTR …") · tick "screenshot saved" (shows the exact file name to use).
+Student 360 → Payments and the batch roster only **show** these entries and link back here.
+
+## 11. Teaching & task delivery – free stack (portal = tracking only)
+
+| Need | Free tool | How |
+|---|---|---|
+| Announcements, quick doubts | **WhatsApp Community** (one community, one group per batch) | Link stored on the batch |
+| Tasks, material, submissions, marks | **Google Classroom** (free with a Google account) – one class per batch | Post tasks with due dates; students submit there; you grade there |
+| Live classes | **Google Meet** (free: 60 min for group calls) or **Jitsi Meet** (free, no time limit) | One fixed link per batch |
+| Recordings / video lessons | **YouTube (unlisted playlist per course plan)**, recorded with **OBS Studio** (free) | Re-use the same playlist for every batch of that plan |
+| PDFs, slides | **Google Drive** folder per course (view-only link) | Link on the batch |
+| Code tasks (FS, QA, DevOps, AI) | **GitHub** (free) – template repo per task, or GitHub Classroom | Link on the work item |
+| Quizzes / tests | **Google Forms quiz** | Link on the work item; marks copied to the portal |
+
+**How the portal tracks it:** each thing you give (session, task, test, resource) becomes a **work item** on the batch (title, date, due, channel, link). After the due date, open the **completion grid** (students × items) and mark Done / Late / Missing, plus marks. Attendance is marked per session in the same grid. This feeds the certificate decision and the "result" on the verify page.
+Later (free): read submissions from the Google Classroom API to pre-fill the grid.
+
+## 12. Automations (once a day – fits Vercel Hobby)
 | When (IST) | Job |
 |---|---|
-| Daily 09:00 | Admin digest: today's follow-ups, overdue fees, students with no update yesterday |
-| Daily 19:00 | Reminder to students with no daily update today |
-| 1st of month 09:00 | Create **stipend rows** for last month (amount from the terms, attendance for information) → the admin edits the amount if needed → marks paid with a note → saves the screenshot locally |
-| Daily | List paid rows where the screenshot is not marked saved (in the admin digest) |
-| Batch end date | Move to "Completed?" review → certificate drafts |
+| 09:00 daily | Admin digest: follow-ups due, expected fees, stipend rows to pay, screenshots not saved, offers not accepted for 3+ days, batches ending in 7 days |
+| 1st of month | Create stipend entries for last month |
+| On assignment (instant) | Fee entry (Paid) + offer/T&C/consent drafts |
+| Batch end date | Prompt "Close batch" → certificate drafts |
 
-## 9. Screens (wireframes canvas: https://claude.ai/artifact/CVxiNwpDfhSAjdQMLFc1Lb – private, owner shares)
-Admin: Dashboard · Leads (pipeline + list) · Lead detail · Students (directory) · Student 360 · Batches · Create batch · Batch detail · Fees · Stipend payroll · Projects board · Settings
-Student: Home (mobile) · Fees/Stipend · Tasks · Daily update · Documents · Profile/KYC
+Email/WhatsApp sending comes once SMTP is configured (D-10). Until then the digest shows on the dashboard.
 
-## 10. Vercel-friendly architecture
-- **Next.js App Router on Vercel + Supabase (Mumbai).** Set the Vercel function region to **`bom1` (Mumbai)** in `vercel.json` so functions sit next to the database. The default US region adds about 250 ms to every query.
-- **Vercel plan (D-28):** **Hobby while testing**, Pro once it goes into real use. Hobby is for non-commercial use, and its crons run at most once a day, so every job in §8 is designed as a once-a-day job.
-- **Crons:** `vercel.json` → `/api/cron/*` (protected by `CRON_SECRET`). Cron times are in **UTC** (09:00 IST = 03:30 UTC).
-- **Files: none in the cloud.** No Supabase Storage, no Vercel Blob. Everything is local (§6.9), so database size stays tiny and the free tiers last.
-- **PDFs** (letters, certificates): pdfme in Node route handlers, generated on demand for download (not stored), well within function time limits. Bulk generation goes in batches of ~20 per request.
-- **Previews:** Vercel Preview deployments point at a **separate staging Supabase** project, never at prod data.
-- **Performance:** server components plus TanStack Table with server-side pagination. No ISR (all data is per-user).
-- **Observability:** Vercel logs + Speed Insights; audit log in the DB.
+## 13. Local files (office PC)
+```
+<local_files_root>\<academic year>\
+  students\<STUDENT-CODE>_<First-Last>\
+    01_kyc\        PHOTO_<code>.jpg · COLLEGEID_<code>.jpg · IDPROOF_<code>.jpg · NOC_<code>.pdf
+    02_payments\   FEE_<code>_<YYYY-MM-DD>_<amount>.jpg · STP_<code>_<YYYY-MM>_<amount>.jpg · RFD_<code>_<date>_<amount>.jpg
+    03_documents\  <DOC-NUMBER>.pdf   (e.g. QF-CERT-2627-AA-0007.pdf)
+    04_work\  05_other\
+  batches\<BATCH-CODE>\     (exports, close-batch ZIP)
+```
+The portal shows the exact folder and file name with a copy button. **Sync this folder to OneDrive/Google Drive**: it is the only copy of proofs.
 
-## 11. Open-source reuse (verified 27-Nov-2026)
-| Repo | License | Use |
-|---|---|---|
-| [marmelab/atomic-crm](https://github.com/marmelab/atomic-crm) | MIT | **Closest match** (React + Supabase + shadcn): contacts, notes, tasks, deals kanban, activity history. Reuse its CRM patterns and activity model. |
-| [Kiranism/next-shadcn-dashboard-starter](https://github.com/Kiranism/next-shadcn-dashboard-starter) | MIT | Next.js + shadcn + TanStack Table/Form + dnd-kit kanban. Reuse the table, form and kanban components (auth is Clerk, so swap it for Supabase). |
-| [satnaing/shadcn-admin](https://github.com/satnaing/shadcn-admin) | MIT | Admin layout and screen patterns (Vite – reference only) |
-| [TanStack/table](https://github.com/TanStack/table) | MIT | Data tables (leads, students, payments) |
-| [clauderic/dnd-kit](https://github.com/clauderic/dnd-kit) | MIT | Kanban (lead pipeline, project tasks) |
-| [pdfme/pdfme](https://github.com/pdfme/pdfme) | MIT | Letters and certificates |
-| [schedule-x/schedule-x](https://github.com/schedule-x/schedule-x) | MIT | Calendar for sessions and follow-ups (later) |
-| supabase/supabase `examples/auth/nextjs` | Apache-2.0 | Auth patterns (already applied) |
-| [makeplane/plane](https://github.com/makeplane/plane) | AGPL-3.0 | **Reference only** – PMS ideas, do not copy code |
-| [frappe/hrms](https://github.com/frappe/hrms) | GPL-3.0 | **Reference only** – payroll/attendance field ideas |
-| [horilla/horilla-hr](https://github.com/horilla/horilla-hr) | LGPL-2.1 | **Reference only** – HRMS + payroll + project modules |
-| [twentyhq/twenty](https://github.com/twentyhq/twenty) | check LICENSE | **Reference only** – CRM data model |
+## 14. Architecture (Vercel + Supabase, free while testing)
+Next.js on Vercel (function region **bom1**, near Supabase Mumbai) · Supabase Postgres + Auth + RLS · **no cloud file storage** · PDFs generated on demand (pdfme, Node route) · daily cron `/api/cron/daily` (CRON_SECRET) · Vercel Preview → staging Supabase project · audit log in DB.
 
-Rule: copy code only from MIT/Apache repos (keep their license notice). GPL/AGPL/LGPL are for ideas only.
+## 15. Open-source reuse
+MIT (copy allowed, keep notice): **atomic-crm** (CRM patterns, activity log), **next-shadcn-dashboard-starter** (tables, forms, kanban), **TanStack Table**, **dnd-kit**, **pdfme**. Reference only (copyleft): Plane, Frappe HRMS, Horilla, Twenty.
 
-## 12. Changes to what is already built (Phase 1)
-Kept: auth (Google + password), invite-only, RLS approach, audit log, settings, numbering, import API, tests, deploy.
-Changed in one migration (prod has no real data yet, so this is safe):
-- Roles → `admin` / `student` (+ `is_owner`). `mentor` removed; `super_admin` becomes `admin` + `is_owner`.
-- `applicants` → `leads` (+ stage, source, owner, priority, follow-up) and a new `activities` table.
-- `programs` → `courses`. `batch_mentors` removed. `enrollment_terms` is replaced by `fee_records` / `stipend_terms`; new `course_plans`, `local_files`.
-- The mentor area is removed. The admin nav is rebuilt around the new modules.
+## 16. Changes vs what is built (Phase 1)
+Kept: auth (Google + password), invite-only access, RLS pattern, audit log, settings, numbering, form import, tests, deployment.
+One migration (no real data yet): roles → admin/student + is_owner · applicants → leads (+ CRM fields) · new activities · programs → courses + course_plans · batch_mentors removed · enrollment_terms → stipend_agreements + money_entries · new work_items/work_status/attendance · documents redesigned (templates, tokens, acceptances, scans) · mentor area removed.
 
-## 13. Build order (after this plan is frozen)
-| Step | Scope | Rough effort |
-|---|---|---|
-| A | Schema v2 + RLS + tests, roles change, data migration | 1 working session |
-| B | CRM: leads pipeline/list, lead detail, activity log, follow-ups, convert | 1–2 sessions |
-| C | Students directory + Student 360 + KYC + batches/courses | 2 sessions |
-| D | Fees tracking + Stipend monthly rows + local file paths | 1 session |
-| E | Attendance/daily updates + student portal | 1–2 sessions |
-| F | Projects (kanban) | 1 session |
-| G | Documents/PDF + crons + email (needs SMTP) | 1–2 sessions |
-
-## 14. Decisions (answered 27-Nov-2026)
-| ID | Decision |
+## 17. Build order
+| Step | Scope |
 |---|---|
-| D-21 | ✅ Yes: `is_owner` flag on 1–2 admin accounts for destructive actions (delete, revoke, numbering, full export). |
-| D-22 | ✅ **No bank details** and no proof uploads. Only a free-text payment note ("Pay via GPay to XX account, checked by Name") + the local file path of the screenshot. |
-| D-23 | ✅ Stipend amount, rules and T&C are agreed by email. The admin enters and updates the amount in the portal. No cap and no formula. |
-| D-24 | ✅ The fee is fixed and small (mostly < ₹5,000), paid at once, treated as a **deposit**. Portal = **tracking only** (amount, status, date, note). |
-| D-25 | ✅ Students send the screenshot on **WhatsApp**. The admin saves it locally. The portal keeps the path + a rough note. No student uploads. |
-| D-26 | ✅ Lead stages and sources as in §5. |
-| D-27 | ✅ Every course has separate **30 / 60 / 90-day** plans, each with its own price, benefits and batches. |
-| D-28 | ✅ Hobby (free) while testing. Pro after go-live. |
+| A | Schema v2.2 + RLS + tests + data migration |
+| B | Students (add, 360, archive) + Leads/CRM + convert |
+| C | Courses & plans, Batches, **Assign / unassign / transfer**, roster |
+| D | Payments ledger |
+| E | Documents: templates, drafts, issue, PDF, acceptance, verify page, scan log, close-batch ZIP |
+| F | Work log + completion grid + attendance; student app |
+| G | Projects tracking; daily cron + digest; email once SMTP exists |
 
-Still open: actual plan prices and benefits per course (entered later in Settings → Courses), and the local files root folder on the office PC.
+## 18. Still needed from the owner
+Course plan prices and benefits · wording of the offer letter, T&C, consents and certificate (we draft, you approve, CA/lawyer reviews) · signatory names + signature image · local files root folder · the final domain for the QR links (changing the domain later breaks old QR codes, so fix it before the first certificate).
