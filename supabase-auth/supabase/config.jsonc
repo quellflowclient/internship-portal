@@ -1,8 +1,21 @@
+// Pushes ONLY: site URL, redirect URLs, email rate limit, Resend SMTP and the auth email templates.
+// Run from the repo root (the key is read from your shell, never stored):
+//   $env:RESEND_API_KEY = "re_..."; npx supabase config push --workdir supabase-auth --remote=oowsjohdhpujqhinhury
 {
   "auth": {
+    "rate_limit": { "email_sent": 30 },
     "site_url": "https://internship.quellflow.online",
     "additional_redirect_urls": ["https://internship.quellflow.online/**", "https://internship-portal-sooty.vercel.app/**", "http://localhost:3000/**"],
     "email": {
+      "smtp": {
+        "enabled": true,
+        "host": "smtp.resend.com",
+        "port": 465,
+        "user": "resend",
+        "pass": "env(RESEND_API_KEY)",
+        "admin_email": "no-reply@internship.quellflow.online",
+        "sender_name": "Quellflow"
+      },
       "template": {
         "recovery":         { "subject": "Reset your Quellflow password",            "content_path": "./supabase/templates/recovery.html" },
         "invite":           { "subject": "You are invited to the Quellflow Internship Portal", "content_path": "./supabase/templates/invite.html" },
