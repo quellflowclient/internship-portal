@@ -35,6 +35,7 @@ beforeAll(async () => {
   await db.query("insert into public.invitations (email, role) values ('admin2@qf.test', 'admin')");
   u.admin2 = await createUser(db, "admin2@qf.test", "Admin Two");
   u.stranger = await createUser(db, "nobody@qf.test", "Nobody");
+  await db.query("insert into public.signatories (name, title, profile_id) values ('Owner One', 'Partner', $1), ('Admin Two', 'Partner', $2)", [u.owner, u.admin2]);
 
   id.aa30 = (await su<{ id: string }>(
     "select p.id from public.course_plans p join public.courses c on c.id = p.course_id where c.code = 'AA' and p.duration_days = 30",
@@ -391,5 +392,52 @@ describe("projects, search and attention", () => {
   it("lists payments without a saved screenshot on the dashboard", async () => {
     const n = await val<number>(u.owner, "select n from public.v_attention where key = 'proof_missing'");
     expect(n).toBeGreaterThan(0);
+  });
+});
+
+describe("documents v2 (Step E)", () => {
+  const draftFor = (type: string, student: string, enrollment: string | null, note: string | null) =>
+    val<string>(u.owner,
+      `insert into public.documents (type, template_id, student_id, enrollment_id, issue_note, data)
+       values ($1::public.doc_type, (select id from public.document_templates where type = $1::public.doc_type and active), $2, $3, $4,
+               jsonb_build_object('name', 'Riya Shah', 'event_title', 'AI Workshop', 'event_dates', '1 Dec 2026'))
+       returning id`, [type, student, enrollment, note]);
+
+  it("signs with the issuing admin's signature and blocks signing as someone else", async () => {
+    const d = await draftFor("joining", id.sA, id.eA, null);
+    const ownerSig = await val<string>(u.owner, "select id from public.signatories where profile_id = $1", [u.owner]);
+    await fails(u.admin2, "select public.issue_document($1, $2, $3)", [d, HASH, ownerSig], /only sign as yourself/);
+    await as(u.admin2, "select public.issue_document($1, $2)", [d, HASH]);
+    const sig = await val<string>(u.owner, "select s.name from public.documents d join public.signatories s on s.id = d.signatory_id where d.id = $1", [d]);
+    expect(sig).toBe("Admin Two");
+  });
+
+  it("lets an owner issue a certificate early only with a reason", async () => {
+    const noNote = await draftFor("certificate", id.sA, id.eA, null);
+    await fails(u.owner, "select public.issue_document($1, $2)", [noNote, HASH], /completed enrolment/);
+    const early = await draftFor("certificate", id.sA, id.eA, "Leaving early for exams, all work done");
+    const r = await val<{ number: string }>(u.owner, "select public.issue_document($1, $2)", [early, HASH]);
+    expect(r.number).toMatch(/^QF-CERT-\d{4}-AA-\d{4}$/);
+  });
+
+  it("issues certificates without an internship for owners with a reason", async () => {
+    const d1 = await draftFor("participation", id.sX, null, "Workshop guest");
+    await fails(u.admin2, "select public.issue_document($1, $2)", [d1, HASH], /owner, with a reason/);
+    const r = await val<{ number: string }>(u.owner, "select public.issue_document($1, $2)", [d1, HASH]);
+    expect(r.number).toMatch(/^QF-PRT-\d{4}-GN-0001$/);
+    const token = await val<string>(u.owner, "select verify_token from public.documents where id = $1", [d1]);
+    const v = await val<Row>(null, "select public.verify_document($1, null)", [token]);
+    expect(v.event_title).toBe("AI Workshop");
+    const d2 = await draftFor("appreciation", id.sX, null, null);
+    await fails(u.owner, "select public.issue_document($1, $2)", [d2, HASH], /owner, with a reason/);
+  });
+
+  it("shares class days on the public plan and lets admins delete template items", async () => {
+    const token = await val<string>(u.owner, "select share_token from public.batch_plans where batch_id = $1", [id.pastBatch]);
+    const plan = await val<{ schedule_days: number[] }>(null, "select public.get_shared_plan($1)", [token]);
+    expect(plan.schedule_days).toEqual([1, 2, 3, 4, 5]);
+    const item = await val<string>(u.owner, "select id from public.plan_template_items order by seq desc limit 1");
+    await as(u.admin2, "delete from public.plan_template_items where id = $1", [item]);
+    expect(await val(u.owner, "select count(*)::int from public.plan_template_items where id = $1", [item])).toBe(0);
   });
 });

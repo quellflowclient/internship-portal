@@ -118,7 +118,15 @@ export const DOC_TYPE_LABEL: Record<DocType, string> = {
   experience: "Experience letter",
   lor: "Letter of recommendation",
   project_certificate: "Project certificate",
+  participation: "Certificate of participation",
+  appreciation: "Certificate of appreciation",
+  custom_certificate: "Certificate (custom)",
 };
+
+/** Types that need no enrolment (docs/20 §5). Owner only, with a reason. */
+export const STANDALONE_DOC_TYPES: DocType[] = ["participation", "appreciation", "custom_certificate"];
+/** Types the student accepts in the portal (click-wrap). */
+export const ACCEPT_DOC_TYPES: DocType[] = ["offer", "tnc", "consent"];
 
 export const DOC_DISPLAY: Record<string, { label: string; tone: Tone }> = {
   draft: { label: "Draft", tone: "mute" },

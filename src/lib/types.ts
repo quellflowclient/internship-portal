@@ -12,7 +12,18 @@ export type EnrollmentStatus = "assigned" | "active" | "completed" | "not_comple
 export type DisplayStatus = "not_assigned" | "at_risk" | "active" | "alumni" | "archived";
 export type MoneyCategory = "fee" | "refund" | "stipend" | "bonus" | "other_in" | "other_out";
 export type MoneyStatus = "expected" | "done" | "void";
-export type DocType = "offer" | "tnc" | "consent" | "joining" | "certificate" | "experience" | "lor" | "project_certificate";
+export type DocType =
+  | "offer"
+  | "tnc"
+  | "consent"
+  | "joining"
+  | "certificate"
+  | "experience"
+  | "lor"
+  | "project_certificate"
+  | "participation"
+  | "appreciation"
+  | "custom_certificate";
 export type DocStatus = "draft" | "issued" | "accepted" | "revoked" | "superseded";
 export type Tone = "ok" | "warn" | "bad" | "info" | "vio" | "acc" | "mute";
 export type PlanKind = "session" | "task" | "test" | "milestone" | "buffer";
