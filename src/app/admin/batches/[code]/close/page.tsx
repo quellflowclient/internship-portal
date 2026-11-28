@@ -2,11 +2,17 @@ import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
 import { Archive, Award, Clock, Download } from "lucide-react";
 import { Button, Card, CardHeader, Notice, Pill } from "@/components/ui";
+import { ActionButton } from "@/components/toast";
+import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { sp, type SearchParams } from "@/lib/url";
 import { formatDate, todayIST } from "@/lib/utils";
-import type { EnrollmentStats, PlanKind, Tone } from "@/lib/types";
-import { getBatch } from "@/server/queries/batch";
+import type { EnrollmentStats, EnrollmentStatus, PlanKind, Tone } from "@/lib/types";
+import { issueAllEligible } from "@/server/actions/documents";
+import { batchPath, getBatch } from "@/server/queries/batch";
 import { plural } from "../../_parts/shared";
+import { MarkPanel } from "./_parts/mark-panel";
+import { ResultsCard, type ResultRow } from "./_parts/results";
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
@@ -14,6 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ code: str
 }
 
 type Entry = { id: string; kind: PlanKind; attendance: { count: number }[] | null };
+type EnrolRow = {
+  id: string;
+  status: EnrollmentStatus;
+  result_note: string | null;
+  student: { id: string; code: string; full_name: string } | null;
+};
 
 function Step({ n, title, sub, end }: { n: number; title: string; sub: ReactNode; end: ReactNode }) {
   return (
@@ -36,38 +48,88 @@ const state = (label: string, tone: Tone) => (
   </Pill>
 );
 
-/** Read-only checklist until Steps E and F make closing work. */
-export default async function BatchClose({ params }: { params: Promise<{ code: string }> }) {
+/** Checklist, results and certificates. The batch ZIP and archiving arrive in Step F. */
+export default async function BatchClose({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ code: string }>;
+  searchParams: Promise<SearchParams>;
+}) {
   const { code: raw } = await params;
+  const query = await searchParams;
   const data = await getBatch(decodeURIComponent(raw));
   if (!data) notFound();
   const { batch: b, progress } = data;
+  const { profile } = await requireRole(["admin"]);
   const supabase = await createClient();
 
   const [entriesRes, enrolRes, settingsRes] = await Promise.all([
     supabase.from("track_entries").select("id, kind, attendance(count)").eq("batch_id", b.id).is("deleted_at", null),
-    supabase.from("enrollments").select("id").eq("batch_id", b.id).in("status", ["assigned", "active", "completed", "not_completed"]),
+    supabase
+      .from("enrollments")
+      .select("id, status, result_note, student:students(id, code, full_name)")
+      .eq("batch_id", b.id)
+      .in("status", ["assigned", "active", "completed", "not_completed"]),
     supabase.from("org_settings").select("min_attendance_pct, local_files_root").eq("id", 1).maybeSingle(),
   ]);
   const entries = (entriesRes.data ?? []) as unknown as Entry[];
-  const enrolIds = ((enrolRes.data ?? []) as { id: string }[]).map((e) => e.id);
+  const enrols = (enrolRes.data ?? []) as unknown as EnrolRow[];
+  const enrolIds = enrols.map((e) => e.id);
   const settings = settingsRes.data as { min_attendance_pct: number; local_files_root: string } | null;
   const minAtt = settings?.min_attendance_pct ?? 75;
 
-  const statsRes = enrolIds.length
-    ? await supabase.from("v_enrollment_stats").select("enrollment_id, attendance_pct, eligible").in("enrollment_id", enrolIds)
-    : { data: [] };
-  const stats = (statsRes.data ?? []) as Pick<EnrollmentStats, "enrollment_id" | "attendance_pct" | "eligible">[];
+  const [statsRes, certRes] = enrolIds.length
+    ? await Promise.all([
+        supabase.from("v_enrollment_stats").select("enrollment_id, attendance_pct, tasks_pct, eligible").in("enrollment_id", enrolIds),
+        supabase
+          .from("documents")
+          .select("id, enrollment_id, number, status")
+          .eq("type", "certificate")
+          .in("enrollment_id", enrolIds)
+          .in("status", ["draft", "issued", "accepted"])
+          .order("created_at", { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const stats = (statsRes.data ?? []) as Pick<EnrollmentStats, "enrollment_id" | "attendance_pct" | "tasks_pct" | "eligible">[];
+  const certs = (certRes.data ?? []) as { id: string; enrollment_id: string; number: string | null; status: string }[];
   const eligible = stats.filter((s) => s.eligible).length;
   const belowMin = stats.filter((s) => s.attendance_pct !== null && s.attendance_pct < minAtt).length;
+
+  const statOf = new Map(stats.map((s) => [s.enrollment_id, s]));
+  const certOf = (id: string) =>
+    certs.find((c) => c.enrollment_id === id && c.status !== "draft") ?? certs.find((c) => c.enrollment_id === id) ?? null;
+  const results: ResultRow[] = enrols
+    .filter((e) => e.status === "active" || e.status === "completed")
+    .sort((x, y) => (x.student?.full_name ?? "").localeCompare(y.student?.full_name ?? ""))
+    .map((e) => {
+      const st = statOf.get(e.id);
+      const c = certOf(e.id);
+      return {
+        id: e.id,
+        status: e.status,
+        result_note: e.result_note,
+        student: e.student,
+        attendance: st?.attendance_pct ?? null,
+        tasks: st?.tasks_pct ?? null,
+        eligible: !!st?.eligible,
+        certificate: c ? { id: c.id, number: c.number, status: c.status } : null,
+      };
+    });
+  const readyToIssue = results.filter((r) => r.status === "completed" && r.eligible && !(r.certificate && r.certificate.status !== "draft")).length;
+  const issuedCount = results.filter((r) => r.certificate && r.certificate.status !== "draft").length;
 
   const planned = progress?.planned ?? 0;
   const closedItems = (progress?.done ?? 0) + (progress?.skipped ?? 0);
   const needAttendance = entries.filter((e) => e.kind === "session" || e.kind === "test");
   const marked = needAttendance.filter((e) => (e.attendance?.[0]?.count ?? 0) > 0).length;
-  const ended = b.end_date <= todayIST();
+  const today = todayIST();
+  const ended = b.end_date <= today;
   const root = settings?.local_files_root?.replace(/[\\/]+$/, "");
   const zipPath = `${root ? `${root}\\` : ""}batches\\${b.code}\\close\\`;
+  const closePath = batchPath(b.code, "close");
+  const markId = sp(query, "mark");
+  const markRow = markId ? results.find((r) => r.id === markId) : undefined;
 
   const notice =
     b.status === "completed" ? (
@@ -76,7 +138,7 @@ export default async function BatchClose({ params }: { params: Promise<{ code: s
       <>This batch was cancelled. There is nothing to close.</>
     ) : (
       <>
-        Closing opens on {formatDate(b.end_date)}. Certificates and the batch ZIP arrive in Steps E and F.
+        The batch ends on {formatDate(b.end_date)}. Certificates can be issued any time a student is completed; the batch ZIP and archiving arrive in Step F.
       </>
     );
 
@@ -108,13 +170,21 @@ export default async function BatchClose({ params }: { params: Promise<{ code: s
           />
           <Step
             n={4}
-            title="Generate certificates"
-            sub={`${eligible} eligible now, ${belowMin} below ${minAtt}% attendance`}
+            title="Issue certificates"
+            sub={`${eligible} eligible now, ${belowMin} below ${minAtt}% attendance, ${plural(issuedCount, "certificate")} issued`}
             end={
-              <Button variant="secondary" size="sm" disabled>
-                <Award aria-hidden />
-                Generate certificates
-              </Button>
+              profile.is_owner && readyToIssue ? (
+                <ActionButton action={issueAllEligible.bind(null, b.id)} variant="secondary" className="h-11 px-3 text-xs md:h-8">
+                  <Award aria-hidden />
+                  Issue all eligible
+                </ActionButton>
+              ) : readyToIssue ? (
+                state("Owner issues", "mute")
+              ) : issuedCount ? (
+                state("Up to date", "ok")
+              ) : (
+                state("Waiting", "mute")
+              )
             }
           />
           <Step
@@ -141,6 +211,10 @@ export default async function BatchClose({ params }: { params: Promise<{ code: s
           />
         </ol>
       </Card>
+
+      <ResultsCard rows={results} markHref={(id) => `${closePath}?mark=${id}`} />
+
+      {markRow ? <MarkPanel row={markRow} endDate={b.end_date} today={today} closeHref={closePath} /> : null}
     </div>
   );
 }

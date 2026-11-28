@@ -129,10 +129,11 @@ begin
 end $$;
 grant execute on function public.issue_document(uuid, text, uuid) to authenticated;
 
--- Public verify shows the event title for standalone certificates.
+-- Public verify shows the event title for standalone certificates. The document's own result
+-- is returned as "outcome" so it never overwrites the check status in "result".
 create or replace function public.public_doc_fields(p_data jsonb) returns jsonb
 language sql immutable as $$
-  select coalesce(jsonb_object_agg(k, p_data -> k), '{}'::jsonb)
+  select coalesce(jsonb_object_agg(case when k = 'result' then 'outcome' else k end, p_data -> k), '{}'::jsonb)
     from unnest(array['name', 'programme', 'batch', 'start_date', 'end_date', 'result', 'signatory', 'project',
                       'event_title', 'event_dates']) k
    where p_data ? k

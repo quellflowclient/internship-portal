@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { LogOut } from "lucide-react";
+import { FileText, LogOut } from "lucide-react";
 import { Logo } from "@/components/ui";
 import { requireRole } from "@/lib/auth/session";
 import { signOut } from "@/server/actions/auth";
@@ -14,11 +14,20 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <Logo className="size-7" />
           <b className="text-md">Quellflow</b>
         </Link>
-        <form action={signOut}>
-          <button type="submit" aria-label="Sign out" data-tip="Sign out" className="grid size-11 place-items-center rounded-lg text-fg-2 hover:bg-hover md:size-10">
-            <LogOut className="size-[18px]" aria-hidden />
-          </button>
-        </form>
+        <div className="flex items-center gap-1">
+          <Link
+            href="/student/documents"
+            className="inline-flex h-11 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold text-fg-2 no-underline hover:bg-hover hover:text-fg md:h-10"
+          >
+            <FileText className="size-[18px]" aria-hidden />
+            Documents
+          </Link>
+          <form action={signOut}>
+            <button type="submit" aria-label="Sign out" data-tip="Sign out" className="grid size-11 place-items-center rounded-lg text-fg-2 hover:bg-hover md:size-10">
+              <LogOut className="size-[18px]" aria-hidden />
+            </button>
+          </form>
+        </div>
       </header>
       <main className="mx-auto flex max-w-2xl flex-col gap-5 px-4 pt-5 pb-10">{children}</main>
     </div>

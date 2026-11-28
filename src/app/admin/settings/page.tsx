@@ -10,6 +10,8 @@ import { PlansSection } from "./plans-section";
 import { NumbersSection } from "./numbers-section";
 import { FilesSection } from "./files-section";
 import { UsersSection } from "./users-section";
+import { SignatoriesSection } from "./signatories-section";
+import { TemplatesSection } from "./templates-section";
 
 export const metadata: Metadata = { title: "Settings" };
 
@@ -17,6 +19,8 @@ const SECTIONS = [
   { key: "org", label: "Organisation" },
   { key: "plans", label: "Course plans and fees" },
   { key: "numbers", label: "Document numbers" },
+  { key: "templates", label: "Document templates" },
+  { key: "signatories", label: "Signatories" },
   { key: "files", label: "Local files and rules" },
   { key: "users", label: "Users and access" },
 ] as const;
@@ -63,6 +67,8 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
           {sec === "org" ? <OrgSection canEdit={isOwner} /> : null}
           {sec === "plans" ? <PlansSection open={open} tpl={sp(params, "tpl")} ti={sp(params, "ti")} /> : null}
           {sec === "numbers" ? <NumbersSection /> : null}
+          {sec === "templates" ? <TemplatesSection isOwner={isOwner} open={open} /> : null}
+          {sec === "signatories" ? <SignatoriesSection isOwner={isOwner} open={open} isNew={isNew} /> : null}
           {sec === "files" ? <FilesSection canEdit={isOwner} /> : null}
           {sec === "users" ? <UsersSection isOwner={isOwner} selfId={profile.id} open={open} isNew={isNew} /> : null}
         </div>
