@@ -43,6 +43,6 @@ export async function acceptDocument(_prev: ActionResult, formData: FormData): P
   }
 
   revalidatePath("/student/documents");
-  revalidatePath("/student");
+  revalidatePath("/student", "layout"); // Home "To do" and the Documents tab badge
   return done("Signed. Thank you.", { redirectTo: "/student/documents" });
 }

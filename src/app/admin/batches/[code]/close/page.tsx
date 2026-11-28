@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { notFound } from "next/navigation";
-import { Archive, Award, Clock, Download } from "lucide-react";
-import { Button, Card, CardHeader, Notice, Pill } from "@/components/ui";
+import { Archive, Award, Clock, Download, Undo2 } from "lucide-react";
+import { ButtonLink, Card, CardHeader, Notice, Pill, buttonClass } from "@/components/ui";
 import { ActionButton } from "@/components/toast";
 import { requireRole } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
@@ -9,9 +9,11 @@ import { sp, type SearchParams } from "@/lib/url";
 import { formatDate, todayIST } from "@/lib/utils";
 import type { EnrollmentStats, EnrollmentStatus, PlanKind, Tone } from "@/lib/types";
 import { issueAllEligible } from "@/server/actions/documents";
+import { reopenBatch } from "@/server/actions/batch-close";
 import { batchPath, getBatch } from "@/server/queries/batch";
 import { plural } from "../../_parts/shared";
-import { MarkPanel } from "./_parts/mark-panel";
+import { ArchivePanel } from "./_parts/archive-panel";
+import { MarkPanel, type Outcome } from "./_parts/mark-panel";
 import { ResultsCard, type ResultRow } from "./_parts/results";
 
 export async function generateMetadata({ params }: { params: Promise<{ code: string }> }) {
@@ -42,13 +44,17 @@ function Step({ n, title, sub, end }: { n: number; title: string; sub: ReactNode
   );
 }
 
+/** close_batch() can be undone for 2 minutes (reopen_batch); same window as restoring a revoked document. */
+const UNDO_MS = 2 * 60 * 1000;
+const canUndoClose = (closedAt: string | null | undefined) => !!closedAt && Date.parse(closedAt) > Date.now() - UNDO_MS;
+
 const state = (label: string, tone: Tone) => (
   <Pill tone={tone} dot>
     {label}
   </Pill>
 );
 
-/** Checklist, results and certificates. The batch ZIP and archiving arrive in Step F. */
+/** Checklist, results (completed / not completed), certificates, the batch ZIP and Archive batch (docs/19 P7). */
 export default async function BatchClose({
   params,
   searchParams,
@@ -70,14 +76,23 @@ export default async function BatchClose({
       .from("enrollments")
       .select("id, status, result_note, student:students(id, code, full_name)")
       .eq("batch_id", b.id)
-      .in("status", ["assigned", "active", "completed", "not_completed"]),
+      .order("created_at"),
     supabase.from("org_settings").select("min_attendance_pct, local_files_root").eq("id", 1).maybeSingle(),
   ]);
   const entries = (entriesRes.data ?? []) as unknown as Entry[];
-  const enrols = (enrolRes.data ?? []) as unknown as EnrolRow[];
+  const allEnrols = (enrolRes.data ?? []) as unknown as EnrolRow[];
+  const enrols = allEnrols.filter((e) => ["assigned", "active", "completed", "not_completed"].includes(e.status));
   const enrolIds = enrols.map((e) => e.id);
+  const openCount = enrols.filter((e) => e.status === "assigned" || e.status === "active").length;
+  const finishedCount = enrols.filter((e) => e.status === "completed" || e.status === "not_completed").length;
   const settings = settingsRes.data as { min_attendance_pct: number; local_files_root: string } | null;
   const minAtt = settings?.min_attendance_pct ?? 75;
+
+  const allIds = allEnrols.map((e) => e.id);
+  const { count: docCount } = allIds.length
+    ? await supabase.from("documents").select("id", { count: "exact", head: true }).in("enrollment_id", allIds).in("status", ["issued", "accepted"])
+    : { count: 0 };
+  const issuedDocs = docCount ?? 0;
 
   const [statsRes, certRes] = enrolIds.length
     ? await Promise.all([
@@ -100,7 +115,7 @@ export default async function BatchClose({
   const certOf = (id: string) =>
     certs.find((c) => c.enrollment_id === id && c.status !== "draft") ?? certs.find((c) => c.enrollment_id === id) ?? null;
   const results: ResultRow[] = enrols
-    .filter((e) => e.status === "active" || e.status === "completed")
+    .filter((e) => e.status === "active" || e.status === "completed" || e.status === "not_completed")
     .sort((x, y) => (x.student?.full_name ?? "").localeCompare(y.student?.full_name ?? ""))
     .map((e) => {
       const st = statOf.get(e.id);
@@ -128,17 +143,25 @@ export default async function BatchClose({
   const root = settings?.local_files_root?.replace(/[\\/]+$/, "");
   const zipPath = `${root ? `${root}\\` : ""}batches\\${b.code}\\close\\`;
   const closePath = batchPath(b.code, "close");
-  const markId = sp(query, "mark");
+  const closed = b.status === "completed";
+  const closedAt = (b as typeof b & { closed_at?: string | null }).closed_at;
+  const undoable = closed && canUndoClose(closedAt);
+  const canArchive = b.status === "running" && openCount === 0;
+  const markId = closed ? undefined : sp(query, "mark");
   const markRow = markId ? results.find((r) => r.id === markId) : undefined;
+  const outcome: Outcome = sp(query, "result") === "not" ? "not_completed" : markRow?.status === "not_completed" && !sp(query, "result") ? "not_completed" : "completed";
+  const markHref = (id: string, o?: Outcome) => `${closePath}?mark=${id}${o === "not_completed" ? "&result=not" : o === "completed" ? "&result=done" : ""}`;
+  const showArchive = canArchive && sp(query, "archive") === "1";
+  const zipHref = `/api/batches/${encodeURIComponent(b.code)}/zip`;
 
   const notice =
     b.status === "completed" ? (
-      <>This batch is closed. Its documents stay verifiable.</>
+      <>This batch is archived. Results are final and its documents stay verifiable.</>
     ) : b.status === "cancelled" ? (
       <>This batch was cancelled. There is nothing to close.</>
     ) : (
       <>
-        The batch ends on {formatDate(b.end_date)}. Certificates can be issued any time a student is completed; the batch ZIP and archiving arrive in Step F.
+        The batch ends on {formatDate(b.end_date)}. Set each student&apos;s result, issue certificates, export the ZIP, then archive the batch.
       </>
     );
 
@@ -190,31 +213,68 @@ export default async function BatchClose({
           <Step
             n={5}
             title="Export the batch ZIP to the office PC"
-            sub={zipPath}
+            sub={
+              <>
+                {issuedDocs ? `${plural(issuedDocs, "issued document")} as PDFs. Save to ` : "Issued documents as PDFs. Save to "}
+                {zipPath}
+              </>
+            }
             end={
-              <Button variant="secondary" size="sm" disabled>
-                <Download aria-hidden />
-                Export ZIP
-              </Button>
+              issuedDocs ? (
+                <a href={zipHref} download className={buttonClass("secondary", "sm", "h-11 no-underline md:h-8")}>
+                  <Download aria-hidden />
+                  Export ZIP
+                </a>
+              ) : (
+                state("No documents yet", "mute")
+              )
             }
           />
           <Step
             n={6}
             title="Archive the batch"
-            sub="Students move to alumni. Documents stay verifiable."
+            sub={
+              closed
+                ? undoable
+                  ? "Archived just now. Undo is possible for 2 minutes."
+                  : "Archived. Students moved to alumni. Documents stay verifiable."
+                : b.status === "cancelled"
+                  ? "A cancelled batch is not archived."
+                  : openCount
+                    ? `${plural(openCount, "student")} still without a result. Mark each one completed or not completed first.`
+                    : "Students with no other open enrolment move to alumni. Documents stay verifiable."
+            }
             end={
-              <Button variant="secondary" size="sm" disabled>
-                <Archive aria-hidden />
-                Archive batch
-              </Button>
+              closed ? (
+                undoable ? (
+                  <ActionButton action={reopenBatch.bind(null, b.id)} variant="secondary" className="h-11 px-3 text-xs md:h-8">
+                    <Undo2 aria-hidden />
+                    Undo archive
+                  </ActionButton>
+                ) : (
+                  state("Archived", "ok")
+                )
+              ) : canArchive ? (
+                <ButtonLink href={`${closePath}?archive=1`} scroll={false} size="sm" variant="secondary">
+                  <Archive aria-hidden />
+                  Archive batch
+                </ButtonLink>
+              ) : b.status === "cancelled" ? (
+                state("Cancelled", "mute")
+              ) : (
+                state("Waiting", "mute")
+              )
             }
           />
         </ol>
       </Card>
 
-      <ResultsCard rows={results} markHref={(id) => `${closePath}?mark=${id}`} />
+      <ResultsCard rows={results} markHref={markHref} locked={closed} />
 
-      {markRow ? <MarkPanel row={markRow} endDate={b.end_date} today={today} closeHref={closePath} /> : null}
+      {markRow ? (
+        <MarkPanel row={markRow} outcome={outcome} endDate={b.end_date} today={today} closeHref={closePath} markHref={markHref} />
+      ) : null}
+      {showArchive ? <ArchivePanel batchId={b.id} code={b.code} finished={finishedCount} issued={issuedDocs} closeHref={closePath} /> : null}
     </div>
   );
 }

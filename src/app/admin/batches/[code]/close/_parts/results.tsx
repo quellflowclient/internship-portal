@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Award, CheckCheck } from "lucide-react";
+import { Award, CheckCheck, CircleSlash } from "lucide-react";
 import { ButtonLink, Card, CardHeader, Pill } from "@/components/ui";
 import { ENROLLMENT_STATUS } from "@/lib/labels";
 import type { EnrollmentStatus } from "@/lib/types";
@@ -15,19 +15,31 @@ export interface ResultRow {
   certificate: { id: string; number: string | null; status: string } | null;
 }
 
-/** Batch → Close: one row per active or completed enrolment, with its result and certificate. */
-export function ResultsCard({ rows, markHref }: { rows: ResultRow[]; markHref: (enrollmentId: string) => string }) {
+/**
+ * Batch → Close: one row per active, completed or not completed enrolment, with its result and certificate.
+ * `locked` (archived batch): results can no longer change.
+ */
+export function ResultsCard({
+  rows,
+  markHref,
+  locked = false,
+}: {
+  rows: ResultRow[];
+  markHref: (enrollmentId: string, outcome?: "completed" | "not_completed") => string;
+  locked?: boolean;
+}) {
   return (
     <Card>
       <CardHeader
         title="Results and certificates"
-        info="Mark each student completed with a result. A certificate needs a completed enrolment over the attendance and task minimums; an owner can issue early or override with a reason from Documents."
+        info="Mark each student completed with a result, or not completed with a note. A certificate needs a completed enrolment over the attendance and task minimums; an owner can issue early or override with a reason from Documents."
       />
       {rows.length ? (
         <ul>
           {rows.map((r) => {
             const st = ENROLLMENT_STATUS[r.status];
             const s = r.student;
+            const notDone = r.status === "not_completed";
             const issueHref = s
               ? `/admin/documents?new=1&type=certificate&student=${s.id}&enrollment=${r.id}`
               : "/admin/documents?new=1&type=certificate";
@@ -47,26 +59,39 @@ export function ResultsCard({ rows, markHref }: { rows: ResultRow[]; markHref: (
                     {s?.code}
                     {`, attendance ${r.attendance === null ? "not marked" : `${r.attendance}%`}`}
                     {`, tasks ${r.tasks === null ? "none" : `${r.tasks}%`}`}
-                    {r.result_note ? `, result: ${r.result_note}` : ""}
+                    {r.result_note ? (notDone ? `, note: ${r.result_note}` : `, result: ${r.result_note}`) : ""}
                   </small>
                 </div>
                 <span className="flex flex-wrap items-center gap-1.5">
                   <Pill tone={st.tone} dot>
                     {st.label}
                   </Pill>
-                  {r.eligible ? <Pill tone="ok">Eligible</Pill> : <Pill tone="warn">Below minimums</Pill>}
+                  {notDone ? null : r.eligible ? <Pill tone="ok">Eligible</Pill> : <Pill tone="warn">Below minimums</Pill>}
                 </span>
                 <span className="flex flex-wrap items-center gap-2">
-                  <ButtonLink href={markHref(r.id)} scroll={false} size="sm" variant={r.status === "completed" ? "ghost" : "secondary"}>
-                    <CheckCheck aria-hidden />
-                    {r.status === "completed" ? "Edit result" : "Mark completed"}
-                  </ButtonLink>
+                  {locked ? null : r.status === "active" ? (
+                    <>
+                      <ButtonLink href={markHref(r.id)} scroll={false} size="sm" variant="secondary">
+                        <CheckCheck aria-hidden />
+                        Mark completed
+                      </ButtonLink>
+                      <ButtonLink href={markHref(r.id, "not_completed")} scroll={false} size="sm" variant="ghost">
+                        <CircleSlash aria-hidden />
+                        Not completed
+                      </ButtonLink>
+                    </>
+                  ) : (
+                    <ButtonLink href={markHref(r.id, notDone ? "not_completed" : "completed")} scroll={false} size="sm" variant="ghost">
+                      <CheckCheck aria-hidden />
+                      Edit result
+                    </ButtonLink>
+                  )}
                   {r.certificate ? (
                     <ButtonLink href={`/admin/documents?open=${r.certificate.id}`} size="sm" variant="ghost">
                       <Award aria-hidden />
                       {r.certificate.number ?? "Certificate draft"}
                     </ButtonLink>
-                  ) : (
+                  ) : notDone || locked ? null : (
                     <ButtonLink href={issueHref} size="sm" variant={r.status === "completed" && r.eligible ? "secondary" : "ghost"}>
                       <Award aria-hidden />
                       Issue certificate
@@ -78,7 +103,7 @@ export function ResultsCard({ rows, markHref }: { rows: ResultRow[]; markHref: (
           })}
         </ul>
       ) : (
-        <p className="px-4 py-6 text-center text-sm text-fg-3">No active or completed enrolments in this batch.</p>
+        <p className="px-4 py-6 text-center text-sm text-fg-3">No active or finished enrolments in this batch.</p>
       )}
     </Card>
   );

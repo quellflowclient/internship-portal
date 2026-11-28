@@ -175,7 +175,7 @@ Helper functions (security definer, `search_path` pinned): `is_admin()`, `is_own
 | students | read/write | permanent delete (only with no enrolment, money or document) | read own; update `phone`, `github_url`, `linkedin_url`, `city` only (column grants) | – |
 | courses, course_plans, plan templates | read | write | read active | – |
 | batches | read/write | – | read own batches (incl. tool links) | – |
-| batch_plans, items, versions | read/write | – | read **published versions** of own batch | via `get_shared_plan(token)` only |
+| batch_plans, items, versions | read/write | – | read **published versions** of own batch; the student app reads them through `get_my_plan(enrollment)` (done/skipped marks + own attendance, works with the share link off) | via `get_shared_plan(token)` only |
 | enrollments, changes, stipend_agreements | read/write | – | read own enrolment (no fee, no stipend columns: separate view) | – |
 | **money_entries** | read/write | hard delete (never used) | **no access** | – |
 | track_entries, attendance, work_results | read/write | – | read own batch entries; own attendance and results | – |
@@ -339,7 +339,7 @@ Each step is idempotent, so a re-run on the same day changes nothing.
 | Documents | v_document_list, document_acceptances, verification_scans | documents |
 | Projects | projects, members, tasks | projects, members, tasks |
 | Settings | settings tables | settings tables, templates, users |
-| Student app | own: students, enrollment, batch links, latest plan version, track entries, attendance, documents | students (limited columns), document_acceptances |
+| Student app | own: students, `v_my_enrollments` (no fee, no type shown), `get_my_plan(enrollment)`, documents | students (`phone`, `city`, `github_url`, `linkedin_url` via guard_students), document_acceptances |
 | Public plan / verify | `get_shared_plan`, `verify_document` | verification_scans (inside the function) |
 
 ---
