@@ -11,7 +11,7 @@ import type { EnrollmentStats, StudentListRow } from "@/lib/types";
 import { restoreStudent } from "@/server/actions/students";
 import { STUDENTS_PATH, studentHref, yearFolder, type FeeBalance } from "../_parts/shared";
 import { DocumentsCard, EnrolmentCard, FilesCard, PaymentsCard, ProfileCard, TimelineCard } from "./_parts/cards";
-import { ArchivePanel, AssignPanel, ChangePanel, EditPanel, RemovePanel } from "./_parts/panels";
+import { ArchivePanel, AssignPanel, ChangePanel, EditPanel, RemovePanel, TransferPanel } from "./_parts/panels";
 import {
   OPEN_STATUSES,
   type ActivityRow,
@@ -104,13 +104,15 @@ export default async function Student360({
   const eParam = sp(query, "e");
   const target = (eParam ? enrolments.find((e) => e.id === eParam) : current) ?? null;
   const targetOpen = target && OPEN_STATUSES.includes(target.status) ? target : null;
+  const needsAgreement = (panel === "change" || panel === "transfer") && targetOpen;
+  const needsBatches = panel === "assign" || (panel === "transfer" && targetOpen);
 
   const [agreementRes, creatorRes, historyRes, batchRes] = await Promise.all([
-    current?.type === "stipend" || (panel === "change" && targetOpen)
+    current?.type === "stipend" || needsAgreement
       ? supabase
           .from("stipend_agreements")
           .select("id, enrollment_id, monthly_inr, from_month, to_month, agreed_note")
-          .eq("enrollment_id", (panel === "change" && targetOpen ? targetOpen : current)!.id)
+          .eq("enrollment_id", (needsAgreement ? targetOpen : current)!.id)
           .order("from_month", { ascending: false })
           .limit(1)
           .maybeSingle()
@@ -126,7 +128,7 @@ export default async function Student360({
           .order("changed_at", { ascending: false })
           .limit(20)
       : Promise.resolve({ data: [] }),
-    panel === "assign"
+    needsBatches
       ? supabase
           .from("batches")
           .select(`id, code, capacity, status, start_date, course_plan_id, course_plan:course_plans(${PLAN_SELECT})`)
@@ -140,7 +142,7 @@ export default async function Student360({
   const batches = (batchRes.data ?? []) as unknown as BatchOption[];
 
   let seats: Record<string, number> = {};
-  if (panel === "assign" && batches.length) {
+  if (needsBatches && batches.length) {
     const { data } = await supabase
       .from("enrollments")
       .select("batch_id")
@@ -240,6 +242,16 @@ export default async function Student360({
           history={history}
           closeHref={closeHref}
           removeHref={href({ panel: "remove", e: targetOpen.id })}
+        />
+      ) : null}
+      {panel === "transfer" && targetOpen ? (
+        <TransferPanel
+          s={s}
+          e={targetOpen}
+          batches={batches}
+          seats={seats}
+          agreement={agreement?.enrollment_id === targetOpen.id ? agreement : null}
+          closeHref={closeHref}
         />
       ) : null}
       {panel === "remove" && targetOpen ? <RemovePanel s={s} e={targetOpen} closeHref={closeHref} /> : null}

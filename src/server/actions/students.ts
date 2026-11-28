@@ -465,3 +465,101 @@ export async function restoreEnrollment(undoId: string): Promise<ActionResult> {
   revalidatePath("/admin/batches");
   return done(`Back in ${row.batch?.code ?? "the batch"}`);
 }
+
+/* =====================================================================
+ * Student 360 → Enrolment: move to another batch (transfer). No Undo: move the student back.
+ * New enrolment via assign_student (same type, fee / free reason / stipend copied),
+ * then the old one becomes "transferred" and points to the new one (docs/19 §6).
+ * ===================================================================== */
+const TransferForm = z.object({
+  enrollment_id: uuid,
+  code: z.string().trim().min(1),
+  batch_id: z.string().trim().min(1, "Pick a batch").pipe(uuid),
+  reason: requiredText(300, "Reason"),
+  capacity_reason: optionalText(300),
+});
+
+const batchPagePath = (code: string) => `/admin/batches/${encodeURIComponent(code)}`;
+
+export async function transferEnrollment(_prev: ActionResult, fd: FormData): Promise<ActionResult> {
+  const { supabase } = await assertAdmin();
+  const parsed = TransferForm.safeParse(formToObject(fd));
+  if (!parsed.success) return fromZod(parsed.error);
+  const v = parsed.data;
+
+  const { data } = await supabase
+    .from("enrollments")
+    .select("id, student_id, batch_id, type, status, fee_inr, free_reason, batch:batches(code)")
+    .eq("id", v.enrollment_id)
+    .maybeSingle();
+  const e = data as
+    | (Pick<EnrollmentRow, "id" | "student_id" | "type" | "status" | "fee_inr" | "free_reason"> & {
+        batch_id: string;
+        batch: { code: string } | null;
+      })
+    | null;
+  if (!e) return fail("This enrolment no longer exists.");
+  if (!OPEN.includes(e.status)) return fail("Only an assigned or active enrolment can be moved.");
+  if (e.batch_id === v.batch_id) return fail("Please fix the highlighted fields.", { batch_id: "Pick a different batch" });
+
+  const { data: target } = await supabase.from("batches").select("code, status").eq("id", v.batch_id).maybeSingle();
+  const to = target as { code: string; status: string } | null;
+  if (!to) return fail("That batch no longer exists.");
+  if (to.status !== "planned" && to.status !== "running") return fail(`${to.code} is not open. Pick a planned or running batch.`);
+
+  type Agreement = { monthly_inr: number; agreed_note: string | null };
+  let stipend: Agreement | null = null;
+  if (e.type === "stipend") {
+    const { data: ag } = await supabase
+      .from("stipend_agreements")
+      .select("monthly_inr, agreed_note")
+      .eq("enrollment_id", e.id)
+      .order("from_month", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    stipend = ag as Agreement | null;
+  }
+
+  const { data: newId, error } = await supabase.rpc("assign_student", {
+    p_student: e.student_id,
+    p_batch: v.batch_id,
+    p_type: e.type,
+    p_fee: e.type === "paid" ? e.fee_inr : null,
+    p_free_reason: e.type === "free" ? (e.free_reason ?? v.reason) : null,
+    p_stipend_monthly: stipend?.monthly_inr ?? null,
+    p_stipend_note: stipend?.agreed_note ?? null,
+    p_capacity_reason: v.capacity_reason ?? null,
+  });
+  if (error || !newId) {
+    if (error?.code === "23505") return fail("This student is already in that batch.");
+    if (/batch is full/i.test(error?.message ?? "")) {
+      const msg = error!.message.replace(/^ERROR:\s*/i, "");
+      return fail(msg, { capacity_reason: msg });
+    }
+    return fromDb(error);
+  }
+
+  const { data: moved, error: upErr } = await supabase
+    .from("enrollments")
+    .update({ status: "transferred", exit_reason: v.reason, transferred_to_id: newId as string, change_reason: v.reason })
+    .eq("id", e.id)
+    .eq("status", e.status)
+    .select("id")
+    .maybeSingle();
+  if (upErr || !moved) {
+    await supabase.from("enrollments").update({ status: "withdrawn", exit_reason: "Transfer failed" }).eq("id", newId as string);
+    return upErr ? fromDb(upErr) : fail("This enrolment changed while you were moving it. Nothing was moved.");
+  }
+
+  await supabase.from("activities").insert({
+    student_id: e.student_id,
+    enrollment_id: e.id,
+    kind: "system",
+    summary: `Moved from ${e.batch?.code ?? "the batch"} to ${to.code}: ${v.reason}`,
+  });
+  refresh(v.code);
+  revalidatePath("/admin/batches");
+  if (e.batch?.code) revalidatePath(batchPagePath(e.batch.code), "layout");
+  revalidatePath(batchPagePath(to.code), "layout");
+  return done(`Moved to ${to.code}`);
+}

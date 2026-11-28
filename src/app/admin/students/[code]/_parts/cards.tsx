@@ -100,7 +100,11 @@ export function EnrolmentCard({
                 Add the monthly stipend amount with Change. It is needed before the enrolment becomes active.
               </Notice>
             ) : null}
-            <div>
+            <div className="flex flex-wrap gap-2">
+              <ButtonLink size="sm" href={href({ panel: "transfer", e: current.id })} scroll={false}>
+                <Layers aria-hidden />
+                Move to another batch
+              </ButtonLink>
               <ButtonLink variant="danger" size="sm" href={href({ panel: "remove", e: current.id })} scroll={false}>
                 <Trash2 aria-hidden />
                 Remove from batch

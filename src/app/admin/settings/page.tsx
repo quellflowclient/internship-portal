@@ -61,7 +61,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
         </nav>
         <div className="flex min-w-0 flex-col gap-4">
           {sec === "org" ? <OrgSection canEdit={isOwner} /> : null}
-          {sec === "plans" ? <PlansSection open={open} /> : null}
+          {sec === "plans" ? <PlansSection open={open} tpl={sp(params, "tpl")} ti={sp(params, "ti")} /> : null}
           {sec === "numbers" ? <NumbersSection /> : null}
           {sec === "files" ? <FilesSection canEdit={isOwner} /> : null}
           {sec === "users" ? <UsersSection isOwner={isOwner} selfId={profile.id} open={open} isNew={isNew} /> : null}

@@ -27,7 +27,7 @@ export function hrefWith(
 }
 
 /** Params that open a panel; a filter change always closes the panel. */
-const PANEL_PARAMS = { open: null, new: null, lost: null, panel: null, e: null, lead: null } as const;
+const PANEL_PARAMS = { open: null, new: null, lost: null, panel: null, e: null, lead: null, item: null, skip: null, tpl: null, ti: null } as const;
 
 /** Same as hrefWith but resets paging and closes any panel – use for every filter change. */
 export function filterHref(path: string, params: SearchParams, changes: Record<string, string | number | null | undefined>) {

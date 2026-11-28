@@ -1,9 +1,9 @@
-/** Student 360 panels (?panel=assign|change|remove|edit|archive). Forms post to src/server/actions/students.ts. */
+/** Student 360 panels (?panel=assign|change|remove|transfer|edit|archive). Forms post to src/server/actions/students.ts. */
 import type { ReactNode } from "react";
 import { Info, Trash2, TriangleAlert } from "lucide-react";
 import { Drawer } from "@/components/drawer";
 import { ActionForm, SubmitButton } from "@/components/toast";
-import { ButtonLink, EmptyState, FormGrid, Notice, RadioSegment } from "@/components/ui";
+import { ButtonLink, DL, EmptyState, FormGrid, Notice, Pill, RadioSegment } from "@/components/ui";
 import { ENROLLMENT_STATUS, TYPE } from "@/lib/labels";
 import { formatPhone } from "@/lib/phone";
 import { formatDate, inr } from "@/lib/utils";
@@ -15,6 +15,7 @@ import {
   removeEnrollment,
   restoreEnrollment,
   restoreStudent,
+  transferEnrollment,
   updateProfile,
 } from "@/server/actions/students";
 import { SelectField, TextAreaField, TextField } from "../../_parts/fields";
@@ -345,6 +346,96 @@ export function ArchivePanel({ s, hasOpen, closeHref, cancelHref }: { s: Student
           <ActionForm action={archiveStudent} undo={restoreStudent} closeHref={closeHref} id="f-archive">
             <Hidden values={{ id: s.id, code: s.code }} />
             <TextAreaField idPrefix="ar" name="reason" label="Reason" required placeholder="Duplicate record, or did not join" />
+          </ActionForm>
+        </>
+      )}
+    </Drawer>
+  );
+}
+
+/* ---------- Move to another batch (transfer) ---------- */
+export function TransferPanel({
+  s,
+  e,
+  batches,
+  seats,
+  agreement,
+  closeHref,
+}: {
+  s: StudentRow;
+  e: EnrolmentRow;
+  batches: BatchOption[];
+  seats: Record<string, number>;
+  agreement: AgreementRow | null;
+  closeHref: string;
+}) {
+  const options = batches.filter((b) => b.id !== e.batch_id);
+  const keeps =
+    e.type === "paid"
+      ? `Agreed fee ${inr(e.fee_inr)} is kept.`
+      : e.type === "free"
+        ? `Why free is kept: ${e.free_reason ?? "none"}.`
+        : agreement
+          ? `Stipend ${inr(agreement.monthly_inr)} a month is kept.`
+          : "No stipend agreement yet. Add it later with Change.";
+  return (
+    <Drawer
+      closeHref={closeHref}
+      title="Move to another batch"
+      sub={`${s.full_name}, now in ${e.batch?.code ?? "a batch"}`}
+      footer={
+        options.length ? (
+          <>
+            <Cancel href={closeHref} />
+            <Spacer />
+            <SubmitButton form="f-transfer" pendingText="Moving…">
+              Move student
+            </SubmitButton>
+          </>
+        ) : undefined
+      }
+    >
+      {options.length === 0 ? (
+        <EmptyState
+          title="No other open batch"
+          action={
+            <ButtonLink href="/admin/batches" variant="primary">
+              Go to Batches
+            </ButtonLink>
+          }
+        >
+          A student can move to a planned or running batch. Create one in Batches first.
+        </EmptyState>
+      ) : (
+        <>
+          <Notice tone="warn" icon={<TriangleAlert aria-hidden />}>
+            The current enrolment is kept as Transferred, with your reason. There is no Undo. To undo, move the student back.
+          </Notice>
+          <DL
+            items={[
+              [
+                "Student type",
+                <Pill key="t" tone={TYPE[e.type].tone}>
+                  {TYPE[e.type].label}
+                </Pill>,
+              ],
+              ["Kept", keeps],
+            ]}
+          />
+          <ActionForm action={transferEnrollment} closeHref={closeHref} id="f-transfer" className="flex flex-col gap-4">
+            <Hidden values={{ enrollment_id: e.id, code: s.code }} />
+            <SelectField idPrefix="tr" name="batch_id" label="Move to batch" required defaultValue="">
+              <option value="" disabled>
+                Pick a batch
+              </option>
+              {options.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.code}, {planLabel(b.course_plan)}, {seats[b.id] ?? 0} of {b.capacity} seats
+                </option>
+              ))}
+            </SelectField>
+            <TextAreaField idPrefix="tr" name="reason" label="Reason" required placeholder="Evening timing suits better" hint="Saved in the change history with the date." />
+            <TextField idPrefix="tr" name="capacity_reason" label="Reason to go over capacity" hint="Only needed when the batch is full." />
           </ActionForm>
         </>
       )}

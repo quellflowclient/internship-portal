@@ -47,6 +47,8 @@ function greeting(now: Date) {
 }
 
 function attentionHref(r: AttentionRow): string {
+  if (r.key.startsWith("behind_")) return `/admin/batches/${encodeURIComponent(r.key.slice(7))}`;
+  if (r.key.startsWith("ending_")) return `/admin/batches/${encodeURIComponent(r.key.slice(7))}/close`;
   switch (r.route) {
     case "a-leads":
       return "/admin/leads?due=1";
@@ -239,7 +241,7 @@ export default async function AdminDashboard() {
                 const dayX = Math.min(Math.max(p.day_x, 1), p.day_n);
                 return (
                   <li key={p.batch_id} className="border-t border-line first:border-t-0">
-                    <Link href="/admin/batches" className="flex items-center gap-3 px-4 py-3 text-fg no-underline transition-colors hover:bg-hover">
+                    <Link href={`/admin/batches/${encodeURIComponent(p.code)}`} className="flex items-center gap-3 px-4 py-3 text-fg no-underline transition-colors hover:bg-hover">
                       <span className="min-w-0 flex-1">
                         <b className="block truncate text-sm font-semibold">{name}</b>
                         <small className="block truncate text-xs text-fg-3">
