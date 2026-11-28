@@ -51,7 +51,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
               scroll={false}
               aria-current={sec === s.key ? "page" : undefined}
               className={cn(
-                "rounded-lg px-3 py-2.5 text-sm whitespace-nowrap no-underline md:py-2",
+                "inline-flex min-h-11 shrink-0 items-center rounded-lg px-3 text-sm whitespace-nowrap no-underline focus-visible:outline-offset-[-2px] md:min-h-9",
                 sec === s.key ? "bg-accent-soft font-semibold text-accent-ink" : "font-medium text-fg-2 hover:bg-hover hover:text-fg",
               )}
             >

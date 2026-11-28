@@ -102,16 +102,16 @@ export async function UsersSection({ isOwner, selfId, open, isNew }: { isOwner: 
             {pending.map((inv) => {
               const expired = new Date(inv.expires_at).getTime() < now;
               return (
-                <li key={inv.id} className="flex min-h-[52px] items-center gap-3 border-t border-line px-4 py-2 first:border-t-0">
-                  <div className="min-w-0 flex-1">
-                    <b className="block truncate text-sm font-semibold">{inv.email}</b>
+                <li key={inv.id} className="flex min-h-[52px] flex-wrap items-center gap-x-3 gap-y-2 border-t border-line px-4 py-2.5 first:border-t-0">
+                  <div className="min-w-0 flex-[1_1_220px]">
+                    <b className="block text-sm font-semibold break-all">{inv.email}</b>
                     <small className="block text-xs text-fg-3">
                       Invited {formatDate(inv.created_at)}, {expired ? "expired" : `expires ${formatDate(inv.expires_at)}`}
                     </small>
                   </div>
                   {expired ? <Pill tone="warn">Expired</Pill> : <Pill tone="info">Pending</Pill>}
                   {isOwner ? (
-                    <ActionButton action={revokeInvitation.bind(null, inv.id)} variant="ghost" className="h-9 px-3 text-xs md:h-8">
+                    <ActionButton action={revokeInvitation.bind(null, inv.id)} variant="ghost" className="h-11 px-3 text-xs md:h-8">
                       Cancel invite
                     </ActionButton>
                   ) : null}
@@ -131,9 +131,10 @@ export async function UsersSection({ isOwner, selfId, open, isNew }: { isOwner: 
           sub="Gives full access to leads, students and records"
           footer={
             <>
-              <ButtonLink href={CLOSE} scroll={false}>
+              <ButtonLink href={CLOSE} scroll={false} variant="ghost">
                 Cancel
               </ButtonLink>
+              <span className="flex-1 max-md:hidden" />
               <SubmitButton form="invite-form" pendingText="Saving…">
                 Save invitation
               </SubmitButton>
@@ -161,9 +162,10 @@ export async function UsersSection({ isOwner, selfId, open, isNew }: { isOwner: 
           footer={
             isOwner && sel.id !== selfId ? (
               <>
-                <ButtonLink href={CLOSE} scroll={false}>
+                <ButtonLink href={CLOSE} scroll={false} variant="ghost">
                   Cancel
                 </ButtonLink>
+                <span className="flex-1 max-md:hidden" />
                 <SubmitButton form="user-form">Save access</SubmitButton>
               </>
             ) : undefined

@@ -20,12 +20,12 @@ import {
 import { CopyButton } from "@/components/toast";
 import { prettySummary } from "@/lib/leads/view";
 import { ButtonLink, Card, CardHeader, DL, IconLink, Meta, Notice, Pill } from "@/components/ui";
-import { ACTIVITY_LABEL, DOC_DISPLAY, DOC_TYPE_LABEL, ENROLLMENT_STATUS, MONEY_CATEGORY_LABEL, TYPE } from "@/lib/labels";
+import { ACTIVITY_LABEL, DOC_DISPLAY, DOC_TYPE_LABEL, ENROLLMENT_STATUS, modeLabel, MONEY_CATEGORY_LABEL, TYPE } from "@/lib/labels";
 import { formatPhone } from "@/lib/phone";
 import { cn, formatDate, formatDateTime, formatDay, inr } from "@/lib/utils";
 import type { ActivityKind, EnrollmentStats } from "@/lib/types";
 import { planLabel, type FeeBalance } from "../../_parts/shared";
-import { MODE_LABEL, type ActivityRow, type AgreementRow, type DocRow, type EnrolmentRow, type MoneyRow, type StudentRow } from "./data";
+import { type ActivityRow, type AgreementRow, type DocRow, type EnrolmentRow, type MoneyRow, type StudentRow } from "./data";
 
 const ROW = "flex items-center gap-3 border-b border-line px-4 py-3 last:border-b-0";
 
@@ -135,7 +135,7 @@ export function EnrolmentCard({
               {past.map((e) => (
                 <li key={e.id} className="flex items-center justify-between gap-3 border-b border-line px-3 py-2 text-sm last:border-b-0">
                   <span className="min-w-0">
-                    <b className="block truncate font-semibold">{e.batch?.code ?? "Batch"}</b>
+                    <b className="block font-semibold break-words">{e.batch?.code ?? "Batch"}</b>
                     <small className="block truncate text-xs text-fg-3">
                       {TYPE[e.type].label}, {formatDate(e.start_date)}
                       {e.exit_reason ? `, ${e.exit_reason}` : ""}
@@ -246,11 +246,11 @@ export function PaymentsCard({ entries, fb, href }: { entries: MoneyRow[]; fb: F
                   <Icon aria-label={inflow ? "Money in" : "Money out"} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <b className="block truncate text-sm font-semibold">{MONEY_CATEGORY_LABEL[m.category]}</b>
+                  <b className="block text-sm font-semibold break-words">{MONEY_CATEGORY_LABEL[m.category]}</b>
                   <small className="block truncate text-xs text-fg-3">
                     {expected
                       ? `Due ${formatDay(m.due_on)}`
-                      : [formatDay(m.paid_on), m.mode ? MODE_LABEL[m.mode] ?? m.mode : null].filter(Boolean).join(", ")}
+                      : [formatDay(m.paid_on), m.mode ? modeLabel(m.mode) : null].filter(Boolean).join(", ")}
                   </small>
                 </span>
                 <b className={cn("text-sm whitespace-nowrap", expected ? "text-fg-3" : inflow ? "text-ok" : "text-bad")}>
@@ -294,7 +294,7 @@ export function DocumentsCard({ docs, href }: { docs: DocRow[]; href: string }) 
             return (
               <li key={d.id} className={ROW}>
                 <span className="min-w-0 flex-1">
-                  <b className="block truncate text-sm font-semibold">{DOC_TYPE_LABEL[d.type]}</b>
+                  <b className="block text-sm font-semibold break-words">{DOC_TYPE_LABEL[d.type]}</b>
                   <small className="block truncate text-xs text-fg-3">{d.number ?? "Draft"}</small>
                 </span>
                 <Pill tone={st.tone} dot>

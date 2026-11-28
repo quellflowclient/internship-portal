@@ -22,11 +22,16 @@ export function ListSkeleton({ rows = 7 }: { rows?: number }) {
   );
 }
 
-export function PageSkeleton({ kpis = 4, rows = 7 }: { kpis?: number; rows?: number }) {
+/** `header={false}` inside a layout that already shows the page header (batch tabs). */
+export function PageSkeleton({ kpis = 4, rows = 7, header = true }: { kpis?: number; rows?: number; header?: boolean }) {
   return (
     <div className="flex flex-col gap-5" aria-busy="true" aria-label="Loading">
-      <Sk className="h-[26px] w-[220px]" />
-      <Sk className="h-3.5 w-[320px] max-w-[80%]" />
+      {header ? (
+        <>
+          <Sk className="h-[26px] w-[220px] max-w-[70%]" />
+          <Sk className="h-3.5 w-[320px] max-w-[80%]" />
+        </>
+      ) : null}
       {kpis ? (
         <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4 md:gap-3">
           {Array.from({ length: kpis }, (_, i) => (

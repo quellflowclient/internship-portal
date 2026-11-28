@@ -50,13 +50,18 @@ export function DaysField({ defaultDays, className }: { defaultDays: number[]; c
   return (
     <fieldset className={className}>
       <legend className="mb-1.5 text-xs font-semibold text-fg-2">
-        Class days<span className="text-bad"> *</span>
+        Class days
+        <span className="text-bad" aria-hidden>
+          {" "}
+          *
+        </span>
+        <span className="sr-only"> (required)</span>
       </legend>
       <div className="flex flex-wrap gap-1.5">
         {WEEKDAYS.map(([n, name]) => (
           <label key={n} className="cursor-pointer">
             <input type="checkbox" name="days" value={n} defaultChecked={defaultDays.includes(n)} className="peer sr-only" />
-            <span className="inline-flex h-10 min-w-12 items-center justify-center rounded-lg border border-line-strong bg-surface px-3 text-sm font-semibold text-fg-2 peer-checked:border-accent peer-checked:bg-accent-soft peer-checked:text-accent-ink peer-focus-visible:outline-2 peer-focus-visible:outline-accent md:h-9">
+            <span className="inline-flex h-11 min-w-12 items-center justify-center rounded-lg border border-line-strong bg-surface px-3 text-sm font-semibold text-fg-2 peer-checked:border-accent peer-checked:bg-accent-soft peer-checked:text-accent-ink peer-focus-visible:outline-2 peer-focus-visible:outline-accent md:h-9">
               {name}
             </span>
           </label>

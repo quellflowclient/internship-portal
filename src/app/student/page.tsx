@@ -42,7 +42,7 @@ export default async function StudentHome() {
                   ["Batch", r.batch_code],
                   ["Dates", `${formatDate(r.start_date)} to ${formatDate(r.end_date)}`],
                   ["Timing", r.session_time ?? "—"],
-                  ["Plan", TYPE[r.type].label],
+                  ["Type", TYPE[r.type].label],
                   ["Attendance", r.attendance_pct != null ? `${r.attendance_pct}%` : "Not marked yet"],
                 ]}
               />

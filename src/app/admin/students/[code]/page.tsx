@@ -9,7 +9,8 @@ import { formatPhone } from "@/lib/phone";
 import { hrefWith, sp, type SearchParams } from "@/lib/url";
 import type { EnrollmentStats, StudentListRow } from "@/lib/types";
 import { restoreStudent } from "@/server/actions/students";
-import { STUDENTS_PATH, studentHref, yearFolder, type FeeBalance } from "../_parts/shared";
+import { studentFolder, yearFolder } from "@/lib/files";
+import { STUDENTS_PATH, studentHref, type FeeBalance } from "../_parts/shared";
 import { DocumentsCard, EnrolmentCard, FilesCard, PaymentsCard, ProfileCard, TimelineCard } from "./_parts/cards";
 import { ArchivePanel, AssignPanel, ChangePanel, EditPanel, RemovePanel, TransferPanel } from "./_parts/panels";
 import {
@@ -154,11 +155,8 @@ export default async function Student360({
     }, {});
   }
 
-  const root = settings?.local_files_root ?? "";
-  const folder = `${root}${root && !/[\\/]$/.test(root) ? "\\" : ""}${yearFolder(ayRes.data as string | null)}\\students\\${s.code}_${s.full_name
-    .trim()
-    .split(/\s+/)
-    .join("-")}\\`;
+  // Default student_folder pattern; a custom pattern from Settings is not read on this page yet.
+  const folder = studentFolder(null, settings?.local_files_root, yearFolder(ayRes.data as string | null), s.code, s.full_name);
 
   const type = listRow?.type ?? current?.type ?? s.planned_type;
   const status = listRow ? DISPLAY_STATUS[listRow.display_status] : null;

@@ -75,12 +75,3 @@ export interface BatchOption {
 }
 
 export const OPEN_STATUSES: EnrollmentStatus[] = ["assigned", "active"];
-
-export const MODE_LABEL: Record<string, string> = {
-  upi: "UPI",
-  imps: "IMPS",
-  neft: "NEFT",
-  bank_transfer: "Bank transfer",
-  cash: "Cash",
-  other: "Other",
-};

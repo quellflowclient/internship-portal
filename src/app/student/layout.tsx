@@ -15,7 +15,7 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <b className="text-md">Quellflow</b>
         </Link>
         <form action={signOut}>
-          <button type="submit" aria-label="Sign out" data-tip="Sign out" className="grid size-10 place-items-center rounded-lg text-fg-2 hover:bg-hover">
+          <button type="submit" aria-label="Sign out" data-tip="Sign out" className="grid size-11 place-items-center rounded-lg text-fg-2 hover:bg-hover md:size-10">
             <LogOut className="size-[18px]" aria-hidden />
           </button>
         </form>

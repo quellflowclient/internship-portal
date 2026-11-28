@@ -13,8 +13,8 @@ import { sp, type SearchParams } from "@/lib/url";
 import type { BatchPlanVersion, PlanItemStatusRow } from "@/lib/types";
 import { batchPath, getBatch } from "@/server/queries/batch";
 import { publishPlan } from "@/server/actions/plan";
-import { groupByWeek } from "@/app/plan/_lib/plan";
-import { DoneMark, KindDot, KindLegend, PLAN_ROW, WeekCard } from "@/app/plan/_lib/plan-ui";
+import { groupByWeek } from "@/lib/plan";
+import { DoneMark, KindLegend, PLAN_ROW, PlanDate, PlanTitle, WeekCard } from "@/components/plan";
 import { ItemPanel } from "./_parts/item-panel";
 import { ShareToggle } from "./_parts/share-toggle";
 
@@ -110,7 +110,7 @@ export default async function BatchPlanPage({ params, searchParams }: { params: 
         {/* ---------- plan ---------- */}
         <div className="flex min-w-0 flex-col gap-3.5">
           <div className="flex items-center justify-between gap-3">
-            <KindLegend />
+            <KindLegend className="min-w-0" />
             <IconLink href={`${planHref}?item=new`} scroll={false} label="Add plan item" outline>
               <Plus aria-hidden />
             </IconLink>
@@ -130,12 +130,10 @@ export default async function BatchPlanPage({ params, searchParams }: { params: 
                       it.id === nextId && "bg-accent-soft hover:bg-accent-soft",
                     )}
                   >
-                    <span className="text-xs font-medium text-fg-3 md:text-sm">{formatDay(it.planned_date)}</span>
-                    <span className="flex min-w-0 items-center gap-2.5">
-                      <KindDot kind={it.kind} />
-                      <b className="min-w-0 truncate font-semibold">{it.title}</b>
+                    <PlanDate date={it.planned_date} />
+                    <PlanTitle kind={it.kind} title={it.title}>
                       {it.id === nextId ? <span className="sr-only">(next item)</span> : null}
-                    </span>
+                    </PlanTitle>
                     <span className="flex items-center justify-self-end">
                       <StatusEnd it={it} />
                     </span>
@@ -230,7 +228,7 @@ export default async function BatchPlanPage({ params, searchParams }: { params: 
                 )}
               </ActionForm>
 
-              <div className="flex items-center gap-1.5 rounded-lg border border-line bg-surface-2 py-1 pr-1 pl-2.5">
+              <div className="flex min-w-0 items-center gap-1.5 rounded-lg border border-line bg-surface-2 py-1 pr-1 pl-2.5">
                 <code className="min-w-0 flex-1 font-mono text-xs font-medium break-all text-fg">{shareUrl}</code>
                 <CopyButton text={shareUrl} label="Copy the share link" small />
               </div>

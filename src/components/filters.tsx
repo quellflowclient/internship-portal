@@ -36,7 +36,7 @@ export function SearchBox({ param = "q", placeholder, className }: { param?: str
   return (
     <label
       className={cn(
-        "flex h-11 min-w-0 flex-[1_1_220px] items-center gap-2 rounded-lg border border-line-strong bg-surface px-3 text-fg-3 focus-within:border-accent md:h-9 md:max-w-[320px]",
+        "flex h-11 min-w-0 flex-[1_1_220px] items-center gap-2 rounded-lg border border-line-strong bg-surface px-3 text-fg-3 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-soft)] md:h-9 md:max-w-[320px]",
         className,
       )}
     >
@@ -58,7 +58,7 @@ export function SearchBox({ param = "q", placeholder, className }: { param?: str
         <button
           type="button"
           aria-label="Clear search"
-          className="grid size-6 place-items-center rounded text-fg-3 hover:text-fg"
+          className="-mr-2 grid size-10 shrink-0 place-items-center rounded-md text-fg-3 hover:text-fg md:-mr-1.5 md:size-7"
           onClick={() => {
             setValue("");
             setParam(param, "");

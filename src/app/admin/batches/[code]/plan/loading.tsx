@@ -1,5 +1,5 @@
 import { PageSkeleton } from "@/components/skeleton";
 
 export default function Loading() {
-  return <PageSkeleton kpis={0} rows={8} />;
+  return <PageSkeleton kpis={0} rows={8} header={false} />;
 }

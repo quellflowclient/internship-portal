@@ -40,14 +40,14 @@ export function Toaster({ children }: { children: React.ReactNode }) {
         className={cn(
           "fixed bottom-[calc(20px+env(safe-area-inset-bottom))] left-1/2 z-[300] flex max-w-[calc(100%-32px)] -translate-x-1/2 items-center gap-3 rounded-[10px] py-2.5 pr-3 pl-4 text-sm font-semibold shadow-pop transition-all duration-200",
           toast ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-4 opacity-0",
-          toast?.tone === "error" ? "bg-bad text-white" : "bg-fg text-bg",
+          toast?.tone === "error" ? "bg-bad text-bg" : "bg-fg text-bg",
         )}
       >
         <span>{toast?.message}</span>
         {toast?.undo ? (
           <button
             type="button"
-            className="cursor-pointer rounded px-1 font-bold underline"
+            className="-my-1.5 min-h-10 cursor-pointer rounded px-2 font-bold underline"
             onClick={async () => {
               const u = toast.undo;
               setToast(null);
@@ -267,7 +267,7 @@ export function CopyButton({
     <IconButton
       label={label}
       outline={outline}
-      className={small ? "size-9 md:size-[30px] [&_svg]:size-4" : undefined}
+      className={small ? "size-11 md:size-[30px] [&_svg]:size-4" : undefined}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(text);

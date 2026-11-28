@@ -8,8 +8,8 @@ import { formatDate, formatDay, todayIST } from "@/lib/utils";
 import { uuid } from "@/lib/validators";
 import type { Batch, BatchPlan, BatchPlanItem, PlanItemStatusRow } from "@/lib/types";
 import { addPlanItem, deletePlanItem, restorePlanItem, skipPlanItem, unskipPlanItem, updatePlanItem } from "@/server/actions/plan";
-import { weekOf } from "@/app/plan/_lib/plan";
-import { ItemFields } from "./item-fields";
+import { weekOf } from "@/lib/plan";
+import { ItemFields } from "@/components/plan-item-fields";
 
 const days = (n: number) => `${n} ${n === 1 ? "day" : "days"}`;
 

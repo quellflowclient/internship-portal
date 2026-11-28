@@ -95,9 +95,10 @@ export async function PlansSection({ open, tpl, ti }: { open?: string; tpl?: str
           sub={`${sel.duration_days} days`}
           footer={
             <>
-              <ButtonLink href={CLOSE} scroll={false}>
+              <ButtonLink href={CLOSE} scroll={false} variant="ghost">
                 Cancel
               </ButtonLink>
+              <span className="flex-1 max-md:hidden" />
               <SubmitButton form="plan-form">Save plan</SubmitButton>
             </>
           }

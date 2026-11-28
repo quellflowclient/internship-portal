@@ -127,7 +127,7 @@ export async function AgreementPanel({
                       : " onwards"}
                   </b>
                   {a.agreed_note ? (
-                    <small className="block truncate text-xs text-fg-3">
+                    <small className="block text-xs break-words text-fg-3">
                       {a.agreed_note}
                     </small>
                   ) : null}

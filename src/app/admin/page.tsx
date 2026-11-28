@@ -205,11 +205,14 @@ export default async function AdminDashboard() {
                 const Icon = attentionIcon(r);
                 return (
                   <li key={r.key} className="border-t border-line first:border-t-0">
-                    <Link href={attentionHref(r)} className="flex min-h-[52px] items-center gap-3 px-4 py-2.5 text-fg no-underline transition-colors hover:bg-hover">
+                    <Link
+                      href={attentionHref(r)}
+                      className="flex min-h-[52px] items-center gap-3 px-4 py-2.5 text-fg no-underline transition-colors hover:bg-hover focus-visible:outline-offset-[-2px]"
+                    >
                       <span className={cn("grid size-[34px] shrink-0 place-items-center rounded-[9px]", toneClass(r.tone))}>
                         <Icon className="size-[17px]" aria-hidden />
                       </span>
-                      <b className="min-w-0 flex-1 text-sm font-semibold">{attentionText(r)}</b>
+                      <b className="min-w-0 flex-1 text-sm font-semibold break-words">{attentionText(r)}</b>
                       <ChevronRight className="size-4 shrink-0 text-fg-3" aria-hidden />
                     </Link>
                   </li>
@@ -241,9 +244,12 @@ export default async function AdminDashboard() {
                 const dayX = Math.min(Math.max(p.day_x, 1), p.day_n);
                 return (
                   <li key={p.batch_id} className="border-t border-line first:border-t-0">
-                    <Link href={`/admin/batches/${encodeURIComponent(p.code)}`} className="flex items-center gap-3 px-4 py-3 text-fg no-underline transition-colors hover:bg-hover">
+                    <Link
+                      href={`/admin/batches/${encodeURIComponent(p.code)}`}
+                      className="flex items-center gap-3 px-4 py-3 text-fg no-underline transition-colors hover:bg-hover focus-visible:outline-offset-[-2px]"
+                    >
                       <span className="min-w-0 flex-1">
-                        <b className="block truncate text-sm font-semibold">{name}</b>
+                        <b className="line-clamp-2 text-sm font-semibold break-words">{name}</b>
                         <small className="block truncate text-xs text-fg-3">
                           {p.code}, day {dayX} of {p.day_n}
                         </small>
@@ -286,7 +292,7 @@ export default async function AdminDashboard() {
                 <Link
                   key={s}
                   href={`/admin/leads?stage=${s}`}
-                  className="grid grid-cols-[92px_minmax(0,1fr)_32px] items-center gap-2.5 rounded-md py-1 text-sm text-fg no-underline hover:bg-hover"
+                  className="grid min-h-11 grid-cols-[92px_minmax(0,1fr)_32px] items-center gap-2.5 rounded-md px-1 text-sm text-fg no-underline hover:bg-hover md:min-h-8"
                 >
                   <span className="text-fg-2">{STAGE[s].label}</span>
                   <span className="h-5 overflow-hidden rounded-md bg-surface-2">
@@ -325,8 +331,8 @@ export default async function AdminDashboard() {
                     <span className={cn("grid size-7 place-items-center rounded-full", toneClass(tone))}>
                       <Icon className="size-3.5" aria-hidden />
                     </span>
-                    <Link href={href} className="min-w-0 rounded-md text-fg no-underline hover:bg-hover">
-                      <b className="block text-sm font-semibold">
+                    <Link href={href} className="-mx-1.5 -my-1 min-w-0 rounded-md px-1.5 py-1 text-fg no-underline hover:bg-hover">
+                      <b className="block text-sm font-semibold break-words">
                         {ACTIVITY_LABEL[a.kind]}
                         {who ? `, ${who}` : ""}
                       </b>

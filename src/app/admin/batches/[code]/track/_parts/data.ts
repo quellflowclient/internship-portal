@@ -3,7 +3,6 @@ import { formatDay } from "@/lib/utils";
 import type { PlanItemStatusRow, PlanKind, Tone, TrackEntry, WorkMark } from "@/lib/types";
 
 export type EntryRow = Pick<TrackEntry, "id" | "plan_item_id" | "held_on" | "kind" | "title">;
-export type EntryFull = TrackEntry & { created_by: string | null };
 export type ItemStatus = Pick<PlanItemStatusRow, "id" | "planned_date" | "kind" | "title" | "status" | "delay_days" | "delivered_on">;
 
 export interface RosterEnrolment {

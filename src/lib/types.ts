@@ -19,6 +19,7 @@ export type PlanKind = "session" | "task" | "test" | "milestone" | "buffer";
 export type PlanItemState = "planned" | "overdue" | "delivered" | "late" | "skipped";
 export type AttendanceMark = "present" | "absent" | "leave";
 export type WorkMark = "done" | "late" | "missing" | "excused";
+export type PayMode = "upi" | "imps" | "neft" | "bank_transfer" | "cash" | "other";
 
 export interface Profile {
   id: string;
@@ -128,6 +129,7 @@ export interface Batch {
   session_time: string | null;
   capacity: number;
   status: BatchStatus;
+  coordinator_id: string | null;
   whatsapp_url: string | null;
   classroom_url: string | null;
   meet_url: string | null;
@@ -311,6 +313,8 @@ export interface TrackEntry {
   note: string | null;
   deleted_at: string | null;
   created_at: string;
+  updated_at: string;
+  created_by: string | null;
 }
 
 export interface PlanTemplateItem {

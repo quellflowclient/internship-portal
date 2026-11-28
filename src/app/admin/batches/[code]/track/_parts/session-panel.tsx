@@ -5,9 +5,9 @@ import { ActionButton, SubmitButton } from "@/components/toast";
 import { ButtonLink, EmptyState } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { formatDateTime, formatDay, todayIST } from "@/lib/utils";
-import type { AttendanceMark, WorkMark } from "@/lib/types";
+import type { AttendanceMark, TrackEntry, WorkMark } from "@/lib/types";
 import { deleteSession, restoreSession } from "@/server/actions/track";
-import { itemLabel, type EntryFull, type ItemOption, type ItemStatus, type RosterEnrolment, type SessionInitial, type StudentLine } from "./data";
+import { itemLabel, type ItemOption, type ItemStatus, type RosterEnrolment, type SessionInitial, type StudentLine } from "./data";
 import { SessionForm } from "./session-form";
 
 const OPEN = ["assigned", "active"];
@@ -45,7 +45,7 @@ export async function SessionPanel({
       ? supabase.from("work_results").select("enrollment_id, mark, score, max_score").eq("track_entry_id", entryId)
       : Promise.resolve({ data: [] }),
   ]);
-  const entry = entryRes.data as EntryFull | null;
+  const entry = entryRes.data as Omit<TrackEntry, "updated_at"> | null;
 
   if (entryId && (!entry || entry.deleted_at)) {
     return (

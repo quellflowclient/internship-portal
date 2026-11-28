@@ -3,7 +3,7 @@ import * as React from "react";
 import { FieldError } from "@/components/toast";
 import { Field, FormGrid, Input, RadioSegment, Textarea } from "@/components/ui";
 import { PLAN_KIND, PLAN_KINDS } from "@/lib/labels";
-import { resourcesToText } from "@/app/plan/_lib/plan";
+import { resourcesToText } from "@/lib/plan";
 import type { PlanKind, PlanResource } from "@/lib/types";
 
 const KIND_OPTIONS = PLAN_KINDS.map((k) => ({ value: k, label: PLAN_KIND[k].label }));

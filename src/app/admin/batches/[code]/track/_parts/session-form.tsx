@@ -8,14 +8,11 @@
 import * as React from "react";
 import { ActionForm, FieldError } from "@/components/toast";
 import { Button, Field, FormGrid, Input, Notice, RadioSegment, Select, Textarea } from "@/components/ui";
-import { PLAN_KIND, PLAN_KINDS, WORK_MARK_LABEL } from "@/lib/labels";
+import { ATTENDANCE_KINDS, PLAN_KIND, PLAN_KINDS, RESULT_KINDS, WORK_MARK_LABEL } from "@/lib/labels";
 import type { PlanKind, WorkMark } from "@/lib/types";
 import { logSession, updateSession } from "@/server/actions/track";
 import type { ItemOption, SessionInitial, StudentLine } from "./data";
 
-/** Keep in sync with ATTENDANCE_KINDS / RESULT_KINDS in src/server/actions/track.ts. */
-const ATTENDANCE_KINDS: PlanKind[] = ["session", "test", "milestone"];
-const RESULT_KINDS: PlanKind[] = ["task", "test"];
 const KIND_OPTIONS = PLAN_KINDS.map((k) => ({ value: k, label: PLAN_KIND[k].label }));
 const MARKS = Object.keys(WORK_MARK_LABEL) as WorkMark[];
 
@@ -55,7 +52,6 @@ export function SessionForm({
 }) {
   const [itemId, setItemId] = React.useState(initial.plan_item_id);
   const [kind, setKind] = React.useState<PlanKind>(initial.kind);
-  const [kindKey, setKindKey] = React.useState(0);
   const [title, setTitle] = React.useState(initial.title);
   const [present, setPresent] = React.useState<Record<string, boolean>>(() =>
     Object.fromEntries(students.map((s) => [s.enrollment_id, s.present])),
@@ -67,7 +63,6 @@ export function SessionForm({
     setItemId(id);
     if (!next) return;
     setKind(next.kind);
-    setKindKey((k) => k + 1); // remount the radio group with the item's kind
     if (!title.trim() || title === prev?.title) setTitle(next.title);
   };
 
@@ -101,15 +96,9 @@ export function SessionForm({
           <Input id="ls-date" name="held_on" type="date" max={today} defaultValue={initial.held_on} aria-required />
           <FieldError name="held_on" />
         </Field>
-        <div
-          className="min-w-0 [&_fieldset>div]:flex-wrap"
-          onChange={(e) => {
-            const t = e.target as HTMLInputElement;
-            if (t.name === "kind") setKind(t.value as PlanKind);
-          }}
-        >
-          <RadioSegment key={kindKey} name="kind" label="Kind" options={KIND_OPTIONS} defaultValue={kind} />
-        </div>
+        <RadioSegment name="kind" label="Kind" options={KIND_OPTIONS} value={kind} onChange={(k) => setKind(k as PlanKind)}>
+          <FieldError name="kind" />
+        </RadioSegment>
       </FormGrid>
 
       <Field label="Title" htmlFor="ls-title" required hint={itemId ? "Left empty, the plan item's title is used." : undefined}>
@@ -153,7 +142,7 @@ export function SessionForm({
                     onChange={(e) => setPresent((p) => ({ ...p, [s.enrollment_id]: e.target.checked }))}
                     className="size-5 shrink-0 accent-[var(--accent)]"
                   />
-                  <span className="min-w-0 truncate">{s.name}</span>
+                  <span className="line-clamp-2 min-w-0 break-words">{s.name}</span>
                 </label>
               ))}
             </div>
@@ -177,7 +166,7 @@ export function SessionForm({
             <ul className="rounded-lg border border-line">
               {students.map((s) => (
                 <li key={s.enrollment_id} className="flex flex-col gap-2 border-b border-line px-3 py-2.5 last:border-b-0 md:flex-row md:items-center md:gap-3">
-                  <span className="min-w-0 truncate text-sm font-semibold md:flex-1">{s.name}</span>
+                  <span className="min-w-0 text-sm font-semibold break-words md:flex-1 md:truncate">{s.name}</span>
                   <div className={isTest ? "grid grid-cols-[minmax(0,1fr)_96px] gap-2 md:w-60" : "md:w-40"}>
                     <Select name={`mark_${s.enrollment_id}`} defaultValue={s.mark} aria-label={`Result for ${s.name}`}>
                       {MARKS.map((m) => (

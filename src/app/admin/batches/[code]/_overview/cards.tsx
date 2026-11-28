@@ -6,9 +6,8 @@ import { ActionButton } from "@/components/toast";
 import { ButtonLink, Card, CardHeader, DL, IconAnchor, IconLink, Meta, Pill } from "@/components/ui";
 import { BATCH_STATUS, PLAN_KIND, scheduleLabel } from "@/lib/labels";
 import { cn, formatDate, formatDay, inr } from "@/lib/utils";
-import type { BatchPlan, PlanItemStatusRow } from "@/lib/types";
+import type { BatchFull, BatchPlan, PlanItemStatusRow } from "@/lib/types";
 import { startBatch } from "@/server/actions/batches";
-import type { BatchRow } from "../../_parts/shared";
 
 /* ---------- Next up ---------- */
 export function NextUpCard({ item, sessionTime, logHref }: { item: PlanItemStatusRow | null; sessionTime: string | null; logHref: string | null }) {
@@ -22,38 +21,38 @@ export function NextUpCard({ item, sessionTime, logHref }: { item: PlanItemStatu
   }
   const kind = PLAN_KIND[item.kind];
   return (
-    <Card className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
-      <div className="flex min-w-0 flex-col gap-1.5">
-        <span>
-          <Pill tone="acc">Next up</Pill>
-        </span>
-        <b className="text-md font-semibold break-words">{item.title}</b>
-        <span className="text-sm text-fg-2">
-          <Meta
-            items={[
-              formatDay(item.planned_date),
-              sessionTime,
-              <span key="k" className="inline-flex items-center gap-1.5">
-                <span className={cn("size-2 rounded-sm", kind.dot)} aria-hidden />
-                {kind.label}
-              </span>,
-              `Week ${item.week}`,
-            ]}
-          />
-        </span>
+    <Card>
+      <CardHeader title="Next up" />
+      <div className="flex flex-col gap-3 p-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 flex-col gap-1">
+          <b className="text-md font-semibold break-words">{item.title}</b>
+          <span className="text-sm text-fg-2">
+            <Meta
+              items={[
+                formatDay(item.planned_date),
+                sessionTime,
+                <span key="k" className="inline-flex items-center gap-1.5">
+                  <span className={cn("size-2 rounded-sm", kind.dot)} aria-hidden />
+                  {kind.label}
+                </span>,
+                `Week ${item.week}`,
+              ]}
+            />
+          </span>
+        </div>
+        {logHref ? (
+          <ButtonLink href={logHref} className="shrink-0">
+            <CircleCheck aria-hidden />
+            Log after class
+          </ButtonLink>
+        ) : null}
       </div>
-      {logHref ? (
-        <ButtonLink href={logHref} className="shrink-0">
-          <CircleCheck aria-hidden />
-          Log after class
-        </ButtonLink>
-      ) : null}
     </Card>
   );
 }
 
 /* ---------- Tools and links ---------- */
-const TOOLS: { key: keyof BatchRow & `${string}_url`; label: string; icon?: LucideIcon }[] = [
+const TOOLS: { key: keyof BatchFull & `${string}_url`; label: string; icon?: LucideIcon }[] = [
   { key: "whatsapp_url", label: "WhatsApp group" },
   { key: "classroom_url", label: "Google Classroom", icon: GraduationCap },
   { key: "meet_url", label: "Class meeting link", icon: Video },
@@ -64,7 +63,7 @@ const TOOLS: { key: keyof BatchRow & `${string}_url`; label: string; icon?: Luci
 
 export const LINK_FIELDS = TOOLS;
 
-export function LinksCard({ b, editHref }: { b: BatchRow; editHref: string | null }) {
+export function LinksCard({ b, editHref }: { b: BatchFull; editHref: string | null }) {
   const set = TOOLS.filter((t) => b[t.key]);
   return (
     <Card>
@@ -114,7 +113,7 @@ export function DetailsCard({
   cancelHref,
   canStart,
 }: {
-  b: BatchRow;
+  b: BatchFull;
   plan: BatchPlan | null;
   seatsTaken: number;
   coordinator: string | null;

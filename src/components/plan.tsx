@@ -2,7 +2,7 @@
 import * as React from "react";
 import { Check } from "lucide-react";
 import { PLAN_KIND, PLAN_KINDS } from "@/lib/labels";
-import { cn } from "@/lib/utils";
+import { cn, formatDay, formatDayShort } from "@/lib/utils";
 import type { PlanKind } from "@/lib/types";
 
 /** The kind's colour square. Always shown next to the kind's text or the item title. */
@@ -36,8 +36,30 @@ export function WeekCard({ week, range, children }: { week: number; range: strin
   );
 }
 
+/** One plan row: date, kind square + title (up to two lines), status at the end. */
 export const PLAN_ROW =
-  "grid min-h-12 grid-cols-[68px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line px-3.5 py-2.5 text-sm last:border-b-0 md:grid-cols-[92px_minmax(0,1fr)_auto] md:px-4";
+  "grid min-h-12 grid-cols-[48px_minmax(0,1fr)_auto] items-center gap-3 border-b border-line px-3.5 py-2.5 text-sm last:border-b-0 md:grid-cols-[92px_minmax(0,1fr)_auto] md:px-4";
+
+/** The row's date on one line: "Tue 8" on phones (the month is in the week heading), "Tue 8 Dec" from tablet up. */
+export function PlanDate({ date }: { date: string }) {
+  return (
+    <span className="text-xs font-medium whitespace-nowrap text-fg-3 md:text-sm">
+      <span className="md:hidden">{formatDayShort(date)}</span>
+      <span className="hidden md:inline">{formatDay(date)}</span>
+    </span>
+  );
+}
+
+/** Kind square + title. The title wraps to two lines and is never cut to a few letters. */
+export function PlanTitle({ kind, title, children }: { kind: PlanKind; title: string; children?: React.ReactNode }) {
+  return (
+    <span className="flex min-w-0 items-center gap-2.5">
+      <KindDot kind={kind} />
+      <b className="line-clamp-2 min-w-0 font-semibold break-words print:line-clamp-none">{title}</b>
+      {children}
+    </span>
+  );
+}
 
 /** A small ✓ circle. `tip` is the tooltip and accessible name. */
 export function DoneMark({ tip }: { tip: string }) {

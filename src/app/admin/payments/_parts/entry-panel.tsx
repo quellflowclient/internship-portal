@@ -26,21 +26,17 @@ import {
   Textarea,
 } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
-import { MONEY_CATEGORY_LABEL } from "@/lib/labels";
+import { modeLabel, MONEY_CATEGORY_LABEL } from "@/lib/labels";
 import { cn, formatDate, formatDateTime, formatDay, inr } from "@/lib/utils";
-import { hrefWith, type SearchParams } from "@/lib/url";
+import { hrefWith, PANEL_PARAMS, type SearchParams } from "@/lib/url";
+import { academicYear, paymentsFolder, proofFileName } from "@/lib/files";
 import { restoreEntry, voidEntry } from "@/server/actions/payments";
 import { ProofToggle } from "./proof-toggle";
 import {
-  academicYear,
   CATEGORY_TONE,
   dayMonthYear,
-  modeLabel,
   monthLabel,
-  PANEL_RESET,
   PAYMENTS_PATH,
-  paymentsFolder,
-  proofFileName,
   signed,
   SETTINGS_FIELDS,
   type EntryRow,
@@ -68,7 +64,7 @@ export async function EntryPanel({
   params: SearchParams;
 }) {
   const supabase = await createClient();
-  const closeHref = hrefWith(PAYMENTS_PATH, params, PANEL_RESET);
+  const closeHref = hrefWith(PAYMENTS_PATH, params, PANEL_PARAMS);
   const { data } = await supabase
     .from("money_entries")
     .select(
@@ -142,12 +138,12 @@ export async function EntryPanel({
       )
     : null;
   const editHref = hrefWith(PAYMENTS_PATH, params, {
-    ...PANEL_RESET,
+    ...PANEL_PARAMS,
     new: 1,
     entry: e.id,
   });
   const payHref = hrefWith(PAYMENTS_PATH, params, {
-    ...PANEL_RESET,
+    ...PANEL_PARAMS,
     new: 1,
     category: "stipend",
     entry: e.id,
@@ -156,7 +152,7 @@ export async function EntryPanel({
     month: e.period_month?.slice(0, 7) ?? null,
   });
   const selfHref = hrefWith(PAYMENTS_PATH, params, {
-    ...PANEL_RESET,
+    ...PANEL_PARAMS,
     open: e.id,
   });
 
@@ -230,7 +226,7 @@ export async function EntryPanel({
       <ButtonLink
         variant="danger"
         href={hrefWith(PAYMENTS_PATH, params, {
-          ...PANEL_RESET,
+          ...PANEL_PARAMS,
           open: e.id,
           void: 1,
         })}

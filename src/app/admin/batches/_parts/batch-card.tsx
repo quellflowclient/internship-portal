@@ -64,13 +64,13 @@ export function BatchCard({
       className="flex min-w-0 flex-col gap-3.5 rounded-xl border border-line bg-surface p-4 text-fg no-underline transition-colors hover:border-accent"
     >
       <span className="flex items-center justify-between gap-2">
-        <span className="truncate text-xs text-fg-3">{b.code}</span>
+        <span className="min-w-0 truncate text-xs text-fg-3">{b.code}</span>
         <Pill tone={st.tone} dot>
           {st.label}
         </Pill>
       </span>
       <span className="min-w-0">
-        <h3 className="text-md font-semibold">{b.title}</h3>
+        <h3 className="text-md font-semibold break-words">{b.title}</h3>
         <span className="mt-0.5 block text-xs text-fg-3">
           {formatDate(b.start_date)} to {formatDate(b.end_date)}
         </span>
@@ -82,7 +82,7 @@ export function BatchCard({
 
       {running ? (
         <span className="flex flex-col gap-1.5">
-          <span className="flex items-center justify-between gap-3 text-sm">
+          <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-sm">
             <span className="text-fg-2">Plan done</span>
             <span className="flex items-center gap-2">
               {behind ? (
@@ -102,7 +102,7 @@ export function BatchCard({
           <Bar pct={planned > 0 ? (done / planned) * 100 : 0} tone={behind ? "warn" : "acc"} label={`${done} of ${planned} planned items done`} />
         </span>
       ) : (
-        <span className="flex items-center justify-between gap-3 text-sm">
+        <span className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5 text-sm">
           <span className="text-fg-2">Plan</span>
           <span className="flex items-center gap-2">
             {planState(plan)}

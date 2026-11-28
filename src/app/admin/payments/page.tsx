@@ -18,7 +18,7 @@ import {
 } from "@/components/ui";
 import { createClient } from "@/lib/supabase/server";
 import { cn, inr } from "@/lib/utils";
-import { filterHref, hrefWith, sp, type SearchParams } from "@/lib/url";
+import { filterHref, hrefWith, PANEL_PARAMS, sp, type SearchParams } from "@/lib/url";
 import { LedgerTab } from "./_parts/ledger";
 import { PendingTab } from "./_parts/pending";
 import { StipendTab } from "./_parts/stipend";
@@ -31,7 +31,6 @@ import {
   isUuid,
   monthLabel,
   monthStart,
-  PANEL_RESET,
   PAYMENTS_PATH,
   shiftMonth,
   type PayTab,
@@ -107,15 +106,15 @@ export default async function PaymentsPage({
 
   const monthHref = (to: string) =>
     hrefWith(PAYMENTS_PATH, params, {
-      ...PANEL_RESET,
+      ...PANEL_PARAMS,
       month: to === thisMonth ? null : to,
       page: null,
       show: null,
     });
-  const closeHref = hrefWith(PAYMENTS_PATH, params, PANEL_RESET);
+  const closeHref = hrefWith(PAYMENTS_PATH, params, PANEL_PARAMS);
   const tabHref = (to: PayTab) =>
     filterHref(PAYMENTS_PATH, params, {
-      ...PANEL_RESET,
+      ...PANEL_PARAMS,
       tab: to === "ledger" ? null : to,
       proof: to === "ledger" && proofMissing ? "missing" : null,
     });
@@ -164,7 +163,7 @@ export default async function PaymentsPage({
                 href={monthHref(shiftMonth(month, -1))}
                 label="Previous month"
                 scroll={false}
-                className="size-9 md:size-8"
+                className="size-10 md:size-8"
               >
                 <ChevronLeft aria-hidden />
               </IconLink>
@@ -179,13 +178,13 @@ export default async function PaymentsPage({
                   href={monthHref(shiftMonth(month, 1))}
                   label="Next month"
                   scroll={false}
-                  className="size-9 md:size-8"
+                  className="size-10 md:size-8"
                 >
                   <ChevronRight aria-hidden />
                 </IconLink>
               ) : (
                 <span
-                  className="grid size-9 place-items-center text-fg-3 opacity-40 md:size-8"
+                  className="grid size-10 place-items-center text-fg-3 opacity-40 md:size-8"
                   aria-hidden
                 >
                   <ChevronRight className="size-[18px]" />
@@ -194,7 +193,7 @@ export default async function PaymentsPage({
             </div>
             <ButtonLink
               variant="primary"
-              href={hrefWith(PAYMENTS_PATH, params, { ...PANEL_RESET, new: 1 })}
+              href={hrefWith(PAYMENTS_PATH, params, { ...PANEL_PARAMS, new: 1 })}
               scroll={false}
             >
               <Plus aria-hidden />
@@ -220,7 +219,7 @@ export default async function PaymentsPage({
               </span>
               <span
                 className={cn(
-                  "truncate text-md font-bold tabular-nums md:text-lg",
+                  "text-md leading-tight font-bold tabular-nums [overflow-wrap:anywhere] md:text-lg",
                   f.className,
                 )}
               >
@@ -246,7 +245,7 @@ export default async function PaymentsPage({
           {noProof ? (
             <ChipLink
               href={filterHref(PAYMENTS_PATH, params, {
-                ...PANEL_RESET,
+                ...PANEL_PARAMS,
                 tab: null,
                 proof: proofMissing && tab === "ledger" ? null : "missing",
               })}

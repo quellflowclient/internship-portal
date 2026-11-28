@@ -42,8 +42,8 @@ export function PasswordForm() {
       <Field label="Confirm password" htmlFor="pw2">
         <Input id="pw2" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required />
       </Field>
-      <Button type="submit" className="w-full" disabled={busy || !pw || !confirm}>
-        Save password
+      <Button type="submit" className="w-full" disabled={busy || !pw || !confirm} aria-busy={busy}>
+        {busy ? "Saving…" : "Save password"}
       </Button>
     </form>
   );

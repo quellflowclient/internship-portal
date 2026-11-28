@@ -7,8 +7,8 @@ import { formatDate, inr, todayIST } from "@/lib/utils";
 import { ENROLLMENT_STATUS } from "@/lib/labels";
 import type { EnrollmentStatus, MoneyCategory } from "@/lib/types";
 import { RecordForm, type RecordInitial } from "./record-form";
+import { academicYear } from "@/lib/files";
 import {
-  academicYear,
   CATEGORIES,
   isMonth,
   isUuid,

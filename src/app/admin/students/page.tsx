@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, TriangleAlert } from "lucide-react";
 import { ButtonLink, Card, PageHeader, Pill, Segmented, Toolbar } from "@/components/ui";
 import { Chevron, End, List, ListRow, MainCell, Pager, Wide } from "@/components/list";
 import { FilterSelect, SearchBox } from "@/components/filters";
@@ -7,7 +7,8 @@ import { DISPLAY_STATUS, TYPE } from "@/lib/labels";
 import { filterHref, hrefWith, paging, sp, type SearchParams } from "@/lib/url";
 import { cn } from "@/lib/utils";
 import type { StudentListRow, StudentType } from "@/lib/types";
-import { safeSearch, STUDENTS_PATH } from "./_parts/shared";
+import { safeSearch } from "@/lib/search";
+import { STUDENTS_PATH } from "./_parts/shared";
 import { QuickView } from "./_parts/quick-view";
 import { NewStudentPanel } from "./_parts/new-student";
 
@@ -117,6 +118,7 @@ export default async function StudentsPage({ searchParams }: { searchParams: Pro
                 <Wide>{s.type ? <Pill tone={TYPE[s.type].tone}>{TYPE[s.type].label}</Pill> : <span className="text-fg-3">—</span>}</Wide>
                 <Wide className="text-fg-2">{s.batch_code ?? "—"}</Wide>
                 <Wide right className={cn("font-semibold", low && "text-bad")}>
+                  {low ? <TriangleAlert role="img" aria-label={`Below ${minAtt}%`} className="mr-1 inline size-3.5 align-[-2px]" /> : null}
                   {s.attendance_pct !== null ? `${s.attendance_pct}%` : "—"}
                 </Wide>
                 <End>

@@ -128,7 +128,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
           <EmptyState
             title="No leads yet"
             action={
-              <ButtonLink href={hrefWith(PATH, params, { new: 1 })} scroll={false} variant="primary">
+              <ButtonLink href={hrefWith(PATH, params, { new: 1 })} scroll={false}>
                 <Plus aria-hidden />
                 Add lead
               </ButtonLink>
@@ -224,6 +224,7 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                   {SOURCE_LABEL[l.source]}
                 </Wide>
                 <Wide className={isDueNow ? "font-semibold text-warn" : "text-fg-3"}>
+                  {isDueNow ? <Clock role="img" aria-label="Follow-up due" className="mr-1 inline size-3.5 align-[-2px]" /> : null}
                   {l.next_follow_up_on ? (isDueNow && l.next_follow_up_on === today ? "Today" : formatDay(l.next_follow_up_on)) : "—"}
                 </Wide>
                 <End>
@@ -262,13 +263,13 @@ export default async function LeadsPage({ searchParams }: { searchParams: Promis
                       href={hrefWith(PATH, params, { open: l.id, lost: null, new: null })}
                       scroll={false}
                       className={cn(
-                        "flex flex-col gap-1 rounded-[10px] border bg-surface px-3 py-2.5 text-fg no-underline transition-colors hover:border-accent",
+                        "flex min-w-0 flex-col gap-1 rounded-[10px] border bg-surface px-3 py-2.5 text-fg no-underline transition-colors hover:border-accent",
                         open === l.id ? "border-accent" : "border-line",
                       )}
                     >
                       <span className="flex items-center justify-between gap-2">
-                        <b className="truncate text-sm font-semibold">{l.full_name}</b>
-                        {isDue(l.next_follow_up_on, l.stage, today) ? <Pill tone="warn">Today</Pill> : null}
+                        <b className="line-clamp-2 min-w-0 text-sm font-semibold break-words">{l.full_name}</b>
+                        {isDue(l.next_follow_up_on, l.stage, today) ? <Pill tone="warn">Follow up</Pill> : null}
                       </span>
                       {l.college ? <small className="truncate text-xs text-fg-3">{l.college}</small> : null}
                       {l.interested_track ? <small className="truncate text-xs text-fg-3">{l.interested_track}</small> : null}

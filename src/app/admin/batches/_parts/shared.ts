@@ -1,10 +1,7 @@
 /** Shared shapes and small helpers for the Batches screens (rows from the untyped Supabase client). */
-import type { BatchFull, StudentType } from "@/lib/types";
+import type { StudentType } from "@/lib/types";
 
 export const BATCHES_PATH = "/admin/batches";
-
-/** Batch row as the overview needs it (BatchFull plus the columns types.ts does not list yet). */
-export type BatchRow = BatchFull & { coordinator_id: string | null };
 
 export interface CoursePlanRow {
   id: string;

@@ -10,9 +10,11 @@ import {
   FormGrid,
   Input,
   Pill,
+  RadioSegment,
   Select,
 } from "@/components/ui";
-import { MONEY_CATEGORY_LABEL } from "@/lib/labels";
+import { MODE_LABEL, MONEY_CATEGORY_LABEL, PAY_MODES } from "@/lib/labels";
+import { paymentsFolder, proofFileName, type FilePatterns } from "@/lib/files";
 import { cn } from "@/lib/utils";
 import type { MoneyCategory } from "@/lib/types";
 import {
@@ -23,12 +25,7 @@ import {
 import {
   CATEGORIES,
   CATEGORY_TONE,
-  MODE_LABEL,
-  MODES,
   monthLabel,
-  paymentsFolder,
-  proofFileName,
-  type FilePatterns,
   type StudentOption,
 } from "./shared";
 
@@ -164,29 +161,16 @@ export function RecordForm({
 
       <FormGrid>
         {!fixedKind ? (
-          <fieldset className="flex min-w-0 flex-col gap-1.5 md:col-span-2">
-            <legend className="mb-1.5 text-xs font-semibold text-fg-2">
-              Entry
-            </legend>
-            <div className="inline-flex w-fit max-w-full gap-0.5 overflow-x-auto rounded-[9px] border border-line bg-surface-2 p-[3px] [scrollbar-width:none]">
-              {CATEGORIES.map((c) => (
-                <label key={c} className="shrink-0 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="category"
-                    value={c}
-                    checked={category === c}
-                    onChange={() => setCategory(c)}
-                    className="peer sr-only"
-                  />
-                  <span className="inline-flex h-9 items-center rounded-[7px] px-3 text-xs font-semibold whitespace-nowrap text-fg-2 peer-checked:bg-surface peer-checked:text-fg peer-checked:shadow-[0_0_0_1px_var(--line)] peer-focus-visible:outline-2 peer-focus-visible:outline-accent md:h-8">
-                    {MONEY_CATEGORY_LABEL[c]}
-                  </span>
-                </label>
-              ))}
-            </div>
+          <RadioSegment
+            name="category"
+            label="Entry"
+            options={CATEGORIES.map((c) => ({ value: c, label: MONEY_CATEGORY_LABEL[c] }))}
+            value={category}
+            onChange={(c) => setCategory(c as MoneyCategory)}
+            className="md:col-span-2"
+          >
             <FieldError name="category" />
-          </fieldset>
+          </RadioSegment>
         ) : editId ? (
           <div className="flex items-center gap-2 text-sm md:col-span-2">
             <span className="text-xs font-semibold text-fg-2">Entry</span>
@@ -329,7 +313,7 @@ export function RecordForm({
         </Field>
         <Field label="Mode" htmlFor="pf-mode" required>
           <Select id="pf-mode" name="mode" defaultValue={initial.mode}>
-            {MODES.map((m) => (
+            {PAY_MODES.map((m) => (
               <option key={m} value={m}>
                 {MODE_LABEL[m]}
               </option>

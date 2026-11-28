@@ -13,16 +13,14 @@ import {
 } from "@/components/list";
 import { SearchBox } from "@/components/filters";
 import { createClient } from "@/lib/supabase/server";
-import { MONEY_CATEGORY_LABEL } from "@/lib/labels";
+import { modeLabel, MONEY_CATEGORY_LABEL } from "@/lib/labels";
 import { cn, formatDay } from "@/lib/utils";
-import { filterHref, hrefWith, paging, sp, type SearchParams } from "@/lib/url";
-import { safeSearch } from "@/app/admin/students/_parts/shared";
+import { filterHref, hrefWith, PANEL_PARAMS, paging, sp, type SearchParams } from "@/lib/url";
+import { safeSearch } from "@/lib/search";
 import {
   CATEGORY_TONE,
-  modeLabel,
   monthLabel,
   monthStart,
-  PANEL_RESET,
   PAYMENTS_PATH,
   shiftMonth,
   signed,
@@ -121,7 +119,7 @@ export async function LedgerTab({
     nodes.push(
       <ListRow
         key={e.id}
-        href={hrefWith(PAYMENTS_PATH, params, { ...PANEL_RESET, open: e.id })}
+        href={hrefWith(PAYMENTS_PATH, params, { ...PANEL_PARAMS, open: e.id })}
         i={i}
         selected={open === e.id}
       >
@@ -199,7 +197,7 @@ export async function LedgerTab({
           items={[
             {
               href: filterHref(PAYMENTS_PATH, params, {
-                ...PANEL_RESET,
+                ...PANEL_PARAMS,
                 ...base,
                 dir: null,
               }),
@@ -208,7 +206,7 @@ export async function LedgerTab({
             },
             {
               href: filterHref(PAYMENTS_PATH, params, {
-                ...PANEL_RESET,
+                ...PANEL_PARAMS,
                 ...base,
                 dir: "in",
               }),
@@ -217,7 +215,7 @@ export async function LedgerTab({
             },
             {
               href: filterHref(PAYMENTS_PATH, params, {
-                ...PANEL_RESET,
+                ...PANEL_PARAMS,
                 ...base,
                 dir: "out",
               }),
@@ -230,7 +228,7 @@ export async function LedgerTab({
         {proofMissing ? (
           <ChipLink
             href={filterHref(PAYMENTS_PATH, params, {
-              ...PANEL_RESET,
+              ...PANEL_PARAMS,
               proof: null,
             })}
             active
@@ -241,7 +239,7 @@ export async function LedgerTab({
         ) : (
           <ChipLink
             href={filterHref(PAYMENTS_PATH, params, {
-              ...PANEL_RESET,
+              ...PANEL_PARAMS,
               voided: showVoided ? null : 1,
             })}
             active={showVoided}

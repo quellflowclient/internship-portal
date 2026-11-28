@@ -10,6 +10,7 @@ import type {
   MoneyCategory,
   PlanItemState,
   PlanKind,
+  PayMode,
   AttendanceMark,
   WorkMark,
   StudentType,
@@ -87,6 +88,18 @@ export const BATCH_STATUS: Record<BatchStatus, { label: string; tone: Tone }> = 
   cancelled: { label: "Cancelled", tone: "bad" },
 };
 
+export const PAY_MODES: PayMode[] = ["upi", "imps", "neft", "bank_transfer", "cash", "other"];
+export const MODE_LABEL: Record<PayMode, string> = {
+  upi: "UPI",
+  imps: "IMPS",
+  neft: "NEFT",
+  bank_transfer: "Bank transfer",
+  cash: "Cash",
+  other: "Other",
+};
+/** Display word for a stored pay mode (unknown values are shown as stored, empty as "—"). */
+export const modeLabel = (m: string | null | undefined) => (m ? (MODE_LABEL[m as PayMode] ?? m) : "—");
+
 export const MONEY_CATEGORY_LABEL: Record<MoneyCategory, string> = {
   fee: "Fee in",
   refund: "Refund",
@@ -133,6 +146,10 @@ export const PLAN_STATE: Record<PlanItemState, { label: string; tone: Tone }> = 
   late: { label: "Done late", tone: "warn" },
   skipped: { label: "Skipped", tone: "bad" },
 };
+
+/** Which logged kinds take attendance and which take results (the Live track form and src/server/actions/track.ts). */
+export const ATTENDANCE_KINDS: PlanKind[] = ["session", "test", "milestone"];
+export const RESULT_KINDS: PlanKind[] = ["task", "test"];
 
 export const ATTENDANCE_LABEL: Record<AttendanceMark, string> = { present: "Present", absent: "Absent", leave: "On leave" };
 export const WORK_MARK_LABEL: Record<WorkMark, string> = { done: "Done", late: "Late", missing: "Missing", excused: "Excused" };

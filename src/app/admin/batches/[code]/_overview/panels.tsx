@@ -5,7 +5,7 @@ import { ActionForm, SubmitButton } from "@/components/toast";
 import { ButtonLink, FormGrid, Notice } from "@/components/ui";
 import { cancelBatch, restoreBatch, updateBatch, updateBatchLinks } from "@/server/actions/batches";
 import { DaysField, Hidden, SelectField, Spacer, TextField } from "../../_parts/fields";
-import type { BatchRow } from "../../_parts/shared";
+import type { BatchFull } from "@/lib/types";
 import { LINK_FIELDS } from "./cards";
 
 function Cancel({ href, children = "Cancel" }: { href: string; children?: string }) {
@@ -26,7 +26,7 @@ const PLACEHOLDER: Record<string, string> = {
   github_url: "github.com/quellflow/…",
 };
 
-export function LinksPanel({ b, closeHref }: { b: BatchRow; closeHref: string }) {
+export function LinksPanel({ b, closeHref }: { b: BatchFull; closeHref: string }) {
   return (
     <Drawer
       closeHref={closeHref}
@@ -68,7 +68,7 @@ export function EditPanel({
   admins,
   closeHref,
 }: {
-  b: BatchRow;
+  b: BatchFull;
   seatsTaken: number;
   admins: { id: string; name: string }[];
   closeHref: string;
@@ -139,7 +139,7 @@ export function EditPanel({
 }
 
 /* ---------- Cancel batch ---------- */
-export function CancelPanel({ b, closeHref }: { b: BatchRow; closeHref: string }) {
+export function CancelPanel({ b, closeHref }: { b: BatchFull; closeHref: string }) {
   return (
     <Drawer
       closeHref={closeHref}

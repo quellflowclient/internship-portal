@@ -11,7 +11,7 @@ import { assertAdmin } from "@/server/guard";
 import { done, fail, fromDb, fromZod, type ActionResult } from "@/server/result";
 import { formToObject, optionalText, requiredText, uuid } from "@/lib/validators";
 import { formatDate } from "@/lib/utils";
-import { itemContentSchema, optionalWholeNumber, weekOf } from "@/app/plan/_lib/plan";
+import { itemContentSchema, optionalWholeNumber, weekOf } from "@/lib/plan";
 
 type Supa = Awaited<ReturnType<typeof assertAdmin>>["supabase"];
 type PlanCtx = { id: string; batch_id: string; batches: { code: string; start_date: string; end_date: string } | null };

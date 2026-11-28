@@ -13,15 +13,13 @@ import { assertAdmin } from "@/server/guard";
 import { done, fail, fromDb, fromZod, type ActionResult } from "@/server/result";
 import { formToObject, optionalText, optionalUrl, uuid } from "@/lib/validators";
 import { todayIST } from "@/lib/utils";
+import { ATTENDANCE_KINDS, RESULT_KINDS } from "@/lib/labels";
 import type { AttendanceMark, PlanKind, WorkMark } from "@/lib/types";
 
 type Db = Awaited<ReturnType<typeof assertAdmin>>["supabase"];
 
 const KINDS = ["session", "task", "test", "milestone", "buffer"] as const;
 const MARKS = ["done", "late", "missing", "excused"] as const;
-/** Kinds that take attendance / results. Keep in sync with track/_parts/session-form.tsx. */
-const ATTENDANCE_KINDS: PlanKind[] = ["session", "test", "milestone"];
-const RESULT_KINDS: PlanKind[] = ["task", "test"];
 const MAX_SCORE = 9999;
 
 const optionalId = z

@@ -23,7 +23,7 @@ export default async function PasswordPage() {
       </div>
       <PasswordForm />
       <p className="text-sm">
-        <Link href="/" className="font-medium text-accent-ink hover:underline">
+        <Link href="/" className="inline-flex min-h-11 items-center font-medium text-accent-ink hover:underline md:min-h-0">
           Back to portal
         </Link>
       </p>

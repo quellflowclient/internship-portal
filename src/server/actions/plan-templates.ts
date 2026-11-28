@@ -10,7 +10,7 @@ import { z } from "zod";
 import { assertAdmin } from "@/server/guard";
 import { done, fail, fromDb, fromZod, type ActionResult } from "@/server/result";
 import { formToObject, uuid } from "@/lib/validators";
-import { itemContentSchema, wholeNumber } from "@/app/plan/_lib/plan";
+import { itemContentSchema, wholeNumber } from "@/lib/plan";
 
 const PATH = "/admin/settings";
 

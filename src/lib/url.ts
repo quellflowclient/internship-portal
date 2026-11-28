@@ -26,8 +26,30 @@ export function hrefWith(
   return s ? `${path}?${s}` : path;
 }
 
-/** Params that open a panel; a filter change always closes the panel. */
-const PANEL_PARAMS = { open: null, new: null, lost: null, panel: null, e: null, lead: null, item: null, skip: null, tpl: null, ti: null } as const;
+/**
+ * Params that open a panel (or prefill one); a filter change always closes the panel.
+ * Spread into hrefWith to close every panel: `hrefWith(path, params, PANEL_PARAMS)`.
+ */
+export const PANEL_PARAMS = {
+  open: null,
+  new: null,
+  lost: null,
+  panel: null,
+  e: null,
+  lead: null,
+  item: null,
+  skip: null,
+  tpl: null,
+  ti: null,
+  // Payments: void reason, record prefill and the stipend agreement panel
+  void: null,
+  entry: null,
+  student: null,
+  category: null,
+  amount: null,
+  note: null,
+  agreement: null,
+} as const;
 
 /** Same as hrefWith but resets paging and closes any panel – use for every filter change. */
 export function filterHref(path: string, params: SearchParams, changes: Record<string, string | number | null | undefined>) {

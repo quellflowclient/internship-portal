@@ -5,9 +5,9 @@ import { List, Pager, Wide } from "@/components/list";
 import { WhatsAppIcon, waLink } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
 import { cn, inr } from "@/lib/utils";
-import { hrefWith, paging, type SearchParams } from "@/lib/url";
+import { hrefWith, PANEL_PARAMS, paging, type SearchParams } from "@/lib/url";
 import type { EnrollmentStatus } from "@/lib/types";
-import { PANEL_RESET, PAYMENTS_PATH } from "./shared";
+import { PAYMENTS_PATH } from "./shared";
 
 interface Balance {
   student_id: string;
@@ -90,7 +90,7 @@ export async function PendingTab({ params }: { params: SearchParams }) {
               `Hi ${first}, a reminder that ${inr(b.pending)} of your Quellflow course fee is pending. – Quellflow`,
             );
             const href = hrefWith(PAYMENTS_PATH, params, {
-              ...PANEL_RESET,
+              ...PANEL_PARAMS,
               tab: "pending",
               new: 1,
               category: "fee",
@@ -111,7 +111,7 @@ export async function PendingTab({ params }: { params: SearchParams }) {
                 >
                   <Avatar name={s.full_name} />
                   <span className="min-w-0">
-                    <b className="block truncate font-semibold">
+                    <b className="line-clamp-2 font-semibold break-words md:line-clamp-1">
                       {s.full_name}
                     </b>
                     <small className="block truncate text-xs text-fg-3">

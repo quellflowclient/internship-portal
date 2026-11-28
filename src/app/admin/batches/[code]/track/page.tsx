@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PLAN_KIND } from "@/lib/labels";
 import { hrefWith, paging, sp, type SearchParams } from "@/lib/url";
 import { formatDay } from "@/lib/utils";
-import { KindDot } from "@/app/plan/_lib/plan-ui";
+import { KindDot } from "@/components/plan";
 import { batchPath, getBatch } from "@/server/queries/batch";
 import { planLink, type EntryRow, type ItemStatus } from "./_parts/data";
 import { SessionPanel } from "./_parts/session-panel";
@@ -96,7 +96,7 @@ export default async function TrackPage({ params, searchParams }: { params: Prom
           <EmptyState
             title="Nothing logged yet"
             action={
-              <ButtonLink variant="primary" href={logHref} scroll={false}>
+              <ButtonLink href={logHref} scroll={false}>
                 <Plus aria-hidden />
                 Log session
               </ButtonLink>

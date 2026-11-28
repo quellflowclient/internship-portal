@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Info, Users } from "lucide-react";
+import { Info, TriangleAlert, Users } from "lucide-react";
 import { ButtonLink, Card, Notice, Pill } from "@/components/ui";
 import { Chevron, End, List, ListRow, MainCell, Pager, Wide } from "@/components/list";
 import { createClient } from "@/lib/supabase/server";
@@ -92,6 +92,7 @@ export default async function BatchStudents({ params, searchParams }: { params: 
                   <Pill tone={st.tone}>{st.label}</Pill>
                 </Wide>
                 <Wide right className={cn("font-semibold", low && "text-bad")}>
+                  {low ? <TriangleAlert role="img" aria-label={`Below ${minAtt}%`} className="mr-1 inline size-3.5 align-[-2px]" /> : null}
                   {s?.attendance_pct != null ? `${s.attendance_pct}%` : "—"}
                 </Wide>
                 <Wide right className="font-semibold">

@@ -29,7 +29,7 @@ export function BatchTabs({ code, counts }: { code: string; counts: { students?:
             href={href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap no-underline",
+              "-mb-px inline-flex min-h-11 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap no-underline focus-visible:outline-offset-[-2px] md:min-h-0",
               active ? "border-accent font-semibold text-accent-ink" : "border-transparent font-medium text-fg-2 hover:text-fg",
             )}
           >

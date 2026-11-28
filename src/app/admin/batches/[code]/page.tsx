@@ -5,7 +5,7 @@ import { hrefWith, sp, type SearchParams } from "@/lib/url";
 import { todayIST } from "@/lib/utils";
 import type { EnrollmentStats, PlanItemStatusRow, StudentType } from "@/lib/types";
 import { batchPath, getBatch } from "@/server/queries/batch";
-import { emptyMix, plural, type BatchRow } from "../_parts/shared";
+import { emptyMix, plural } from "../_parts/shared";
 import { DetailsCard, LinksCard, NextUpCard } from "./_overview/cards";
 import { CancelPanel, EditPanel, LinksPanel } from "./_overview/panels";
 
@@ -19,7 +19,7 @@ export default async function BatchOverview({ params, searchParams }: { params: 
   const data = await getBatch(decodeURIComponent(raw));
   if (!data) notFound();
   const { plan, progress, seatsTaken } = data;
-  const b = data.batch as BatchRow;
+  const b = data.batch;
   const supabase = await createClient();
 
   const base = batchPath(b.code);

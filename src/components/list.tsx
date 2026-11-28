@@ -66,7 +66,7 @@ export function MainCell({ title, sub, narrow, avatar, icon }: { title: React.Re
     <div className="flex min-w-0 items-center gap-2.5">
       {avatar ? <Avatar name={avatar} /> : icon}
       <div className="min-w-0">
-        <b className="block truncate font-semibold">{title}</b>
+        <b className="line-clamp-2 font-semibold break-words md:line-clamp-1">{title}</b>
         {sub || narrow ? (
           <small className="block truncate text-xs text-fg-3">
             {sub}

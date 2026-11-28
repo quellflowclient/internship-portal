@@ -84,7 +84,7 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
       } else {
         const { error } = await supabase.auth.signInWithOtp({ email: addr, options: { emailRedirectTo: callback(next) } });
         if (error) return setError(error.message);
-        setInfo(`Check your inbox – we sent a sign-in link to ${addr}.`);
+        setInfo(`Check your inbox. We sent a sign-in link to ${addr}.`);
       }
     } finally {
       setBusy(false);
@@ -150,25 +150,30 @@ export function LoginForm({ next, initialError }: { next: string; initialError?:
             />
           </Field>
         ) : null}
-        <Button type="submit" className="w-full" disabled={busy || !email || ((mode === "signin" || mode === "signup") && !password)}>
-          {cta}
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={busy || !email || ((mode === "signin" || mode === "signup") && !password)}
+          aria-busy={busy}
+        >
+          {busy ? "Please wait…" : cta}
         </Button>
       </form>
 
-      <div className="flex flex-col items-start gap-2 text-sm">
+      <div className="flex flex-col items-start text-sm md:gap-1">
         {mode !== "signin" ? (
-          <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("signin")}>
+          <button type="button" className="inline-flex min-h-11 items-center text-left font-medium text-accent-ink hover:underline md:min-h-8" onClick={() => reset("signin")}>
             Back to sign in with email and password
           </button>
         ) : (
           <>
-            <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("forgot")}>
+            <button type="button" className="inline-flex min-h-11 items-center text-left font-medium text-accent-ink hover:underline md:min-h-8" onClick={() => reset("forgot")}>
               Forgot password?
             </button>
-            <button type="button" className="text-left font-medium text-accent-ink hover:underline" onClick={() => reset("signup")}>
+            <button type="button" className="inline-flex min-h-11 items-center text-left font-medium text-accent-ink hover:underline md:min-h-8" onClick={() => reset("signup")}>
               Invited but no password yet? Create one
             </button>
-            <button type="button" className="text-left font-medium text-fg-2 hover:text-fg hover:underline" onClick={() => reset("link")}>
+            <button type="button" className="inline-flex min-h-11 items-center text-left font-medium text-fg-2 hover:text-fg hover:underline md:min-h-8" onClick={() => reset("link")}>
               Email me a one-time link instead
             </button>
           </>

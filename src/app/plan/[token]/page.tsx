@@ -9,11 +9,11 @@ import { GraduationCap, ListVideo, Video } from "lucide-react";
 import { Logo, Meta, Notice, Pill } from "@/components/ui";
 import { WhatsAppIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
-import { formatDate, formatDay } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 import { sp, type SearchParams } from "@/lib/url";
 import type { PlanKind } from "@/lib/types";
-import { groupByWeek, safeHref } from "../_lib/plan";
-import { DoneMark, KindDot, KindLegend, PLAN_ROW, WeekCard } from "../_lib/plan-ui";
+import { groupByWeek, safeHref } from "@/lib/plan";
+import { DoneMark, KindLegend, PLAN_ROW, PlanDate, PlanTitle, WeekCard } from "@/components/plan";
 import { PrintButton } from "./print-button";
 
 export const dynamic = "force-dynamic";
@@ -117,7 +117,7 @@ export default async function SharedPlanPage({ params, searchParams }: { params:
                 href={l.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3 text-xs font-semibold text-fg-2 no-underline hover:bg-hover [&_svg]:size-4"
+                className="inline-flex h-11 items-center gap-1.5 rounded-full border border-line-strong bg-surface px-3.5 text-xs font-semibold text-fg-2 no-underline hover:bg-hover md:h-9 md:px-3 [&_svg]:size-4"
               >
                 {l.icon}
                 {l.label}
@@ -133,11 +133,8 @@ export default async function SharedPlanPage({ params, searchParams }: { params:
             <WeekCard key={w.week} week={w.week} range={w.range}>
               {w.items.map((it) => (
                 <div key={it.seq} className={PLAN_ROW}>
-                  <span className="text-xs font-medium text-fg-3 md:text-sm">{formatDay(it.date)}</span>
-                  <span className="flex min-w-0 items-center gap-2.5">
-                    <KindDot kind={it.kind} />
-                    <b className="min-w-0 font-semibold">{it.title}</b>
-                  </span>
+                  <PlanDate date={it.date} />
+                  <PlanTitle kind={it.kind} title={it.title} />
                   <span className="flex items-center justify-self-end">
                     {it.skipped ? <Pill tone="bad">Skipped</Pill> : it.done ? <DoneMark tip="Done" /> : null}
                   </span>

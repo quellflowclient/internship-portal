@@ -64,13 +64,13 @@ export function Drawer({
           <div className="flex min-w-0 flex-1 items-center gap-3">
             {lead}
             <div className="min-w-0">
-              <h2 id="qf-panel-title" className="truncate text-md font-semibold">
+              <h2 id="qf-panel-title" className="line-clamp-2 text-md font-semibold break-words">
                 {title}
               </h2>
-              {sub ? <p className="truncate text-xs text-fg-3">{sub}</p> : null}
+              {sub ? <p className="line-clamp-2 text-xs break-words text-fg-3">{sub}</p> : null}
             </div>
           </div>
-          <div className="flex items-center gap-0.5">
+          <div className="flex shrink-0 items-center gap-0.5">
             {icons}
             <IconButton ref={closeBtn} label="Close" onClick={close}>
               <X aria-hidden />
@@ -79,7 +79,7 @@ export function Drawer({
         </header>
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4.5">{children}</div>
         {footer ? (
-          <footer className="flex items-center gap-2 border-t border-line px-4.5 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] max-md:[&>*]:flex-1">
+          <footer className="flex flex-wrap items-center gap-2 border-t border-line px-4.5 py-3 pb-[calc(12px+env(safe-area-inset-bottom))] max-md:[&>*]:flex-[1_1_auto]">
             {footer}
           </footer>
         ) : null}

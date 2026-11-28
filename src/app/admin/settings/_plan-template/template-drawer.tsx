@@ -8,8 +8,8 @@ import { createClient } from "@/lib/supabase/server";
 import { uuid } from "@/lib/validators";
 import type { PlanTemplateItem } from "@/lib/types";
 import { addTemplateItem, deleteTemplateItem, updateTemplateItem } from "@/server/actions/plan-templates";
-import { ItemFields } from "@/app/admin/batches/[code]/plan/_parts/item-fields";
-import { KindDot } from "@/app/plan/_lib/plan-ui";
+import { ItemFields } from "@/components/plan-item-fields";
+import { PlanTitle } from "@/components/plan";
 
 type CoursePlan = { id: string; duration_days: number; name: string };
 
@@ -156,13 +156,10 @@ export async function TemplateDrawer({ coursePlan, ti, closeHref }: { coursePlan
                     key={it.id}
                     href={`${listHref}&ti=${it.id}`}
                     scroll={false}
-                    className="grid min-h-12 grid-cols-[56px_minmax(0,1fr)] items-center gap-3 border-b border-line px-4 py-2.5 text-sm text-fg no-underline last:border-b-0 hover:bg-hover"
+                    className="grid min-h-12 grid-cols-[56px_minmax(0,1fr)] items-center gap-3 border-b border-line px-4 py-2.5 text-sm text-fg no-underline last:border-b-0 hover:bg-hover focus-visible:outline-offset-[-2px]"
                   >
-                    <span className="text-xs font-medium text-fg-3">Day {it.day_offset}</span>
-                    <span className="flex min-w-0 items-center gap-2.5">
-                      <KindDot kind={it.kind} />
-                      <b className="min-w-0 truncate font-semibold">{it.title}</b>
-                    </span>
+                    <span className="text-xs font-medium whitespace-nowrap text-fg-3">Day {it.day_offset}</span>
+                    <PlanTitle kind={it.kind} title={it.title} />
                   </Link>
                 ))}
               </div>

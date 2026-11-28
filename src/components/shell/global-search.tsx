@@ -60,7 +60,7 @@ export function GlobalSearch() {
           mobile ? "absolute inset-x-0 top-14 z-30 block border-b border-line bg-surface p-2.5 md:static md:border-0 md:p-0" : "hidden",
         )}
       >
-        <label className="flex h-11 items-center gap-2 rounded-lg border border-line-strong bg-surface px-3 text-fg-3 focus-within:border-accent md:h-9">
+        <label className="flex h-11 items-center gap-2 rounded-lg border border-line-strong bg-surface px-3 text-fg-3 focus-within:border-accent focus-within:shadow-[0_0_0_3px_var(--accent-soft)] md:h-9">
           <Search className="size-4 shrink-0" aria-hidden />
           <input
             ref={input}
@@ -90,7 +90,7 @@ export function GlobalSearch() {
             }}
           />
           {mobile ? (
-            <button type="button" aria-label="Close search" className="grid size-7 place-items-center text-fg-3 md:hidden" onClick={close}>
+            <button type="button" aria-label="Close search" className="-mr-2 grid size-10 shrink-0 place-items-center rounded-md text-fg-3 md:hidden" onClick={close}>
               <X className="size-4" aria-hidden />
             </button>
           ) : (
@@ -110,7 +110,7 @@ export function GlobalSearch() {
                   className={cn("flex items-center gap-3 border-b border-line px-3 py-2.5 text-fg no-underline last:border-b-0", i === active ? "bg-hover" : "hover:bg-hover")}
                 >
                   <span className="min-w-0 flex-1">
-                    <b className="block truncate text-sm">{h.title}</b>
+                    <b className="line-clamp-2 text-sm break-words">{h.title}</b>
                     <small className="block truncate text-xs text-fg-3">
                       {h.code}
                       {h.subtitle ? `, ${h.subtitle}` : ""}

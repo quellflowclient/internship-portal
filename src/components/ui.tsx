@@ -21,8 +21,8 @@ const BTN_VARIANT: Record<ButtonVariant, string> = {
   danger: "text-bad hover:bg-bad-soft border border-transparent",
 };
 const BTN_SIZE: Record<ButtonSize, string> = {
-  sm: "h-9 px-3 text-xs md:h-8",
-  md: "h-10 px-4 text-sm md:h-9",
+  sm: "h-11 px-3 text-xs md:h-8",
+  md: "h-11 px-4 text-sm md:h-9",
 };
 
 export function buttonClass(variant: ButtonVariant = "secondary", size: ButtonSize = "md", className?: string) {
@@ -48,7 +48,7 @@ export function ButtonLink({
 }
 
 const IB =
-  "inline-grid shrink-0 place-items-center rounded-lg text-fg-2 transition-colors hover:bg-hover hover:text-fg size-10 md:size-9 [&_svg]:size-[18px]";
+  "inline-grid shrink-0 place-items-center rounded-lg text-fg-2 transition-colors hover:bg-hover hover:text-fg size-11 md:size-9 [&_svg]:size-[18px]";
 const IB_OUT = "border border-line-strong bg-surface";
 
 /** Icon-only button. `label` becomes the accessible name and the tooltip. */
@@ -100,7 +100,7 @@ export function InfoTip({ text }: { text: string }) {
   return (
     <button
       type="button"
-      className="qf-info inline-grid size-6 shrink-0 cursor-help place-items-center rounded-full text-fg-3 hover:bg-accent-soft hover:text-accent-ink"
+      className="qf-info relative inline-grid size-6 shrink-0 cursor-help place-items-center rounded-full text-fg-3 after:absolute after:-inset-2.5 after:content-[''] hover:bg-accent-soft hover:text-accent-ink"
       data-tip={text}
       aria-label={`What is this? ${text}`}
     >
@@ -163,10 +163,10 @@ export function CardHeader({ title, info, actions, className }: { title: React.R
   return (
     <div className={cn("flex min-h-13 items-center justify-between gap-3 border-b border-line px-4 py-3", className)}>
       <div className="flex min-w-0 items-center gap-1.5">
-        <h2 className="text-md font-semibold">{title}</h2>
+        <h2 className="min-w-0 text-md font-semibold break-words">{title}</h2>
         {info ? <InfoTip text={info} /> : null}
       </div>
-      {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
+      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
     </div>
   );
 }
@@ -190,10 +190,10 @@ export function PageHeader({
         {lead}
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h1 className="text-lg font-bold md:text-xl">{title}</h1>
+            <h1 className="min-w-0 text-lg font-bold break-words md:text-xl">{title}</h1>
             {info ? <InfoTip text={info} /> : null}
           </div>
-          {description ? <div className="mt-1 text-sm text-fg-2">{description}</div> : null}
+          {description ? <div className="mt-1 text-sm break-words text-fg-2">{description}</div> : null}
         </div>
       </div>
       {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
@@ -203,15 +203,17 @@ export function PageHeader({
 
 export function Crumbs({ items }: { items: { label: string; href?: string }[] }) {
   return (
-    <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-fg-3">
+    <nav aria-label="Breadcrumb" className="flex min-w-0 flex-wrap items-center gap-x-1.5 text-sm text-fg-3">
       {items.map((it, i) => (
         <React.Fragment key={i}>
           {it.href ? (
-            <Link href={it.href} className="font-medium text-accent-ink no-underline">
+            <Link href={it.href} className="inline-flex min-h-11 items-center font-medium text-accent-ink no-underline md:min-h-0">
               {it.label}
             </Link>
           ) : (
-            <span>{it.label}</span>
+            <span aria-current="page" className="min-w-0 break-words">
+              {it.label}
+            </span>
           )}
           {i < items.length - 1 ? <ChevronRight className="size-3.5" aria-hidden /> : null}
         </React.Fragment>
@@ -246,8 +248,8 @@ export function Kpi({
 }) {
   const body = (
     <>
-      <span className="text-sm font-medium text-fg-2">{label}</span>
-      <span className="text-lg leading-tight font-bold md:text-xl">{value}</span>
+      <span className={cn("text-sm leading-snug font-medium text-pretty text-fg-2", href && "pr-6")}>{label}</span>
+      <span className="text-lg leading-tight font-bold [overflow-wrap:anywhere] md:text-xl">{value}</span>
       {sub ? <span className={cn("text-xs text-fg-3", tone && { ok: "text-ok", warn: "text-warn", bad: "text-bad" }[tone])}>{sub}</span> : null}
       {href ? <ChevronRight className="absolute top-3.5 right-3.5 size-4 text-fg-3" aria-hidden /> : null}
     </>
@@ -268,10 +270,10 @@ export function KpiGrid({ children }: { children: React.ReactNode }) {
 
 export function DL({ items }: { items: [React.ReactNode, React.ReactNode][] }) {
   return (
-    <dl className="grid grid-cols-[minmax(104px,max-content)_minmax(0,1fr)] gap-x-4 gap-y-2.5 text-sm">
+    <dl className="grid grid-cols-[fit-content(40%)_minmax(0,1fr)] gap-x-4 gap-y-2.5 text-sm">
       {items.map(([k, v], i) => (
         <React.Fragment key={i}>
-          <dt className="text-fg-3">{k}</dt>
+          <dt className="min-w-24 text-fg-3 [overflow-wrap:anywhere]">{k}</dt>
           <dd className="min-w-0 font-medium break-words">{v ?? "—"}</dd>
         </React.Fragment>
       ))}
@@ -290,7 +292,7 @@ export function Tabs({ items, label }: { items: { href: string; label: string; c
           scroll={false}
           aria-current={t.active ? "page" : undefined}
           className={cn(
-            "-mb-px inline-flex items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap no-underline",
+            "-mb-px inline-flex min-h-11 items-center gap-1.5 border-b-2 px-3 py-2.5 text-sm whitespace-nowrap no-underline focus-visible:outline-offset-[-2px] md:min-h-0",
             t.active ? "border-accent font-semibold text-accent-ink" : "border-transparent font-medium text-fg-2 hover:text-fg",
           )}
         >
@@ -312,7 +314,7 @@ export function Segmented({ items, label }: { items: { href: string; label: stri
           scroll={false}
           aria-current={s.active ? "true" : undefined}
           className={cn(
-            "inline-flex h-8 items-center rounded-[7px] px-3 text-xs font-semibold whitespace-nowrap no-underline md:h-[30px]",
+            "inline-flex h-[38px] items-center rounded-[7px] px-3 text-xs font-semibold whitespace-nowrap no-underline focus-visible:outline-offset-[-2px] md:h-[30px]",
             s.active ? "bg-surface text-fg shadow-[0_0_0_1px_var(--line)]" : "text-fg-2 hover:text-fg",
           )}
         >
@@ -329,7 +331,7 @@ export function ChipLink({ href, active, tone, children }: { href: string; activ
       href={href}
       scroll={false}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold whitespace-nowrap no-underline [&_svg]:size-3.5",
+        "inline-flex h-11 shrink-0 items-center gap-1.5 rounded-full border px-3.5 text-xs font-semibold whitespace-nowrap no-underline focus-visible:outline-offset-[-2px] md:h-8 md:px-3 [&_svg]:size-3.5",
         tone === "warn" && "border-transparent bg-warn-soft text-warn",
         tone === "bad" && "border-transparent bg-bad-soft text-bad",
         !tone && (active ? "border-transparent bg-accent-soft text-accent-ink" : "border-line-strong bg-surface text-fg-2"),
@@ -383,7 +385,15 @@ export function Field({
     <div className={cn("flex min-w-0 flex-col gap-1.5", className)}>
       <Label htmlFor={htmlFor}>
         {label}
-        {required ? <span className="text-bad"> *</span> : null}
+        {required ? (
+          <>
+            <span className="text-bad" aria-hidden>
+              {" "}
+              *
+            </span>
+            <span className="sr-only"> (required)</span>
+          </>
+        ) : null}
       </Label>
       {children}
       {error ? (
@@ -403,38 +413,59 @@ export function FormGrid({ children, className }: { children: React.ReactNode; c
 
 export function Checkbox({ label, className, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: React.ReactNode }) {
   return (
-    <label className={cn("flex cursor-pointer items-start gap-2.5 text-sm", className)}>
+    <label className={cn("flex min-h-11 cursor-pointer items-start gap-2.5 py-2.5 text-sm md:min-h-0 md:py-0", className)}>
       <input type="checkbox" className="mt-0.5 size-[18px] shrink-0 accent-[var(--accent)]" {...props} />
       <span>{label}</span>
     </label>
   );
 }
 
-/** Radio group styled as a segmented control (for forms). */
+/**
+ * Radio group styled as a segmented control (for forms). Options wrap onto a second line when they do not fit
+ * (5 or 6 options on a phone). Uncontrolled with `defaultValue`; controlled with `value` + `onChange` (client only).
+ */
 export function RadioSegment({
   name,
   options,
   defaultValue,
+  value,
+  onChange,
   label,
+  className,
+  children,
 }: {
   name: string;
   options: { value: string; label: string }[];
   defaultValue?: string;
+  value?: string;
+  onChange?: (value: string) => void;
   label: string;
+  className?: string;
+  /** Shown under the options, e.g. the field's error. */
+  children?: React.ReactNode;
 }) {
+  const controlled = value !== undefined;
   return (
-    <fieldset className="flex flex-col gap-1.5">
+    <fieldset className={cn("flex min-w-0 flex-col gap-1.5", className)}>
       <legend className="mb-1.5 text-xs font-semibold text-fg-2">{label}</legend>
-      <div className="inline-flex w-fit max-w-full gap-0.5 rounded-[9px] border border-line bg-surface-2 p-[3px]">
+      <div className="inline-flex w-fit max-w-full flex-wrap gap-0.5 rounded-[9px] border border-line bg-surface-2 p-[3px]">
         {options.map((o) => (
           <label key={o.value} className="cursor-pointer">
-            <input type="radio" name={name} value={o.value} defaultChecked={o.value === defaultValue} className="peer sr-only" />
-            <span className="inline-flex h-9 items-center rounded-[7px] px-3 text-xs font-semibold text-fg-2 peer-checked:bg-surface peer-checked:text-fg peer-checked:shadow-[0_0_0_1px_var(--line)] peer-focus-visible:outline-2 peer-focus-visible:outline-accent md:h-8">
+            <input
+              type="radio"
+              name={name}
+              value={o.value}
+              {...(controlled ? { checked: o.value === value } : { defaultChecked: o.value === defaultValue })}
+              onChange={onChange ? (e) => e.currentTarget.checked && onChange(o.value) : undefined}
+              className="peer sr-only"
+            />
+            <span className="inline-flex h-[38px] items-center rounded-[7px] px-3 text-xs font-semibold whitespace-nowrap text-fg-2 peer-checked:bg-surface peer-checked:text-fg peer-checked:shadow-[0_0_0_1px_var(--line)] peer-focus-visible:outline-2 peer-focus-visible:outline-accent md:h-8">
               {o.label}
             </span>
           </label>
         ))}
       </div>
+      {children}
     </fieldset>
   );
 }

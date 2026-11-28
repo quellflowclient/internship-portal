@@ -4,7 +4,7 @@ import { Chevron, End, List, ListRow, MainCell, Wide } from "@/components/list";
 import { ActionButton } from "@/components/toast";
 import { createClient } from "@/lib/supabase/server";
 import { formatDay, inr } from "@/lib/utils";
-import { hrefWith, sp, type SearchParams } from "@/lib/url";
+import { hrefWith, PANEL_PARAMS, sp, type SearchParams } from "@/lib/url";
 import type { EnrollmentStatus } from "@/lib/types";
 import { createStipendRows } from "@/server/actions/payments";
 import {
@@ -12,7 +12,6 @@ import {
   dayMonthYear,
   monthLabel,
   monthStart,
-  PANEL_RESET,
   payBy,
   PAYMENTS_PATH,
 } from "./shared";
@@ -176,7 +175,7 @@ export async function StipendTab({
               <span className="text-xs font-medium whitespace-nowrap text-fg-2">
                 {label}
               </span>
-              <span className="truncate text-md font-bold tabular-nums md:text-lg">
+              <span className="text-md leading-tight font-bold tabular-nums [overflow-wrap:anywhere] md:text-lg">
                 {value}
               </span>
             </div>
@@ -190,7 +189,7 @@ export async function StipendTab({
           </small>
           <ActionButton
             action={createStipendRows.bind(null, month)}
-            variant={money.length === 0 ? "primary" : "secondary"}
+            variant="secondary"
           >
             <CalendarPlus aria-hidden />
             Create this month’s rows
@@ -220,11 +219,11 @@ export async function StipendTab({
             const href = r
               ? r.status === "done"
                 ? hrefWith(PAYMENTS_PATH, params, {
-                    ...PANEL_RESET,
+                    ...PANEL_PARAMS,
                     open: r.id,
                   })
                 : hrefWith(PAYMENTS_PATH, params, {
-                    ...PANEL_RESET,
+                    ...PANEL_PARAMS,
                     new: 1,
                     category: "stipend",
                     entry: r.id,
@@ -232,7 +231,7 @@ export async function StipendTab({
                     amount: r.amount_inr,
                   })
               : hrefWith(PAYMENTS_PATH, params, {
-                  ...PANEL_RESET,
+                  ...PANEL_PARAMS,
                   new: 1,
                   category: "stipend",
                   student: x.studentId,
@@ -301,7 +300,7 @@ export async function StipendTab({
               <ListRow
                 key={e.id}
                 href={hrefWith(PAYMENTS_PATH, params, {
-                  ...PANEL_RESET,
+                  ...PANEL_PARAMS,
                   tab: "stipend",
                   agreement: e.id,
                 })}

@@ -69,6 +69,12 @@ export function AdminShell({
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   React.useEffect(() => setOpen(false), [pathname]);
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
   const today = new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" }).format(new Date());
@@ -79,8 +85,9 @@ export function AdminShell({
       <aside
         aria-label="Navigation"
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-[272px] flex-col gap-4 overflow-y-auto border-r border-line bg-side px-3 py-3.5 transition-transform duration-200 md:sticky md:top-0 md:z-auto md:h-dvh md:w-auto md:translate-x-0 md:px-2.5 lg:px-3",
-          open ? "translate-x-0" : "-translate-x-full",
+          "fixed inset-y-0 left-0 z-40 flex w-[272px] max-w-[85vw] flex-col gap-4 overflow-y-auto border-r border-line bg-side px-3 py-3.5 transition-[transform,visibility] duration-200 md:visible md:sticky md:top-0 md:z-auto md:h-dvh md:w-auto md:max-w-none md:translate-x-0 md:px-2.5 lg:px-3",
+          // Closed on phones: off screen and out of the tab order.
+          open ? "visible translate-x-0" : "invisible -translate-x-full",
         )}
       >
         <Link href="/admin" className="flex items-center gap-2.5 px-1.5 py-1 text-fg no-underline md:max-lg:justify-center">
@@ -135,7 +142,8 @@ export function AdminShell({
         </div>
       </aside>
 
-      <div className="flex min-w-0 flex-col">
+      {/* overflow-x-clip: a too-wide child never makes the whole page scroll sideways on a phone. */}
+      <div className="flex min-w-0 flex-col overflow-x-clip">
         <header className="sticky top-0 z-20 flex h-14 items-center gap-2 border-b border-line bg-surface px-2.5 md:gap-3 md:px-6">
           <IconButton label="Open menu" className="md:hidden" onClick={() => setOpen(true)}>
             <Menu aria-hidden />
@@ -152,16 +160,19 @@ export function AdminShell({
               {attention ? <span className="absolute top-2 right-2 size-2 rounded-full border-2 border-surface bg-bad" aria-hidden /> : null}
             </IconLink>
             <details className="relative">
-              <summary className="list-none cursor-pointer rounded-full [&::-webkit-details-marker]:hidden" aria-label="Account menu">
+              <summary
+                className="grid size-11 cursor-pointer list-none place-items-center rounded-full md:size-9 [&::-webkit-details-marker]:hidden"
+                aria-label="Account menu"
+              >
                 <Avatar name={name} />
               </summary>
               <div className="absolute right-0 z-30 mt-2 w-56 rounded-xl border border-line bg-surface p-1.5 shadow-pop">
                 <p className="truncate px-2.5 pt-1.5 pb-2 text-xs text-fg-3">{name}</p>
-                <Link href="/account/password" className="flex h-10 items-center gap-2.5 rounded-lg px-2.5 text-sm text-fg no-underline hover:bg-hover">
+                <Link href="/account/password" className="flex h-11 items-center gap-2.5 rounded-lg px-2.5 text-sm text-fg no-underline hover:bg-hover md:h-10">
                   <KeyRound className="size-4" aria-hidden /> Change password
                 </Link>
                 <form action={signOut}>
-                  <button type="submit" className="flex h-10 w-full items-center gap-2.5 rounded-lg px-2.5 text-sm text-fg hover:bg-hover">
+                  <button type="submit" className="flex h-11 w-full items-center gap-2.5 rounded-lg px-2.5 text-sm text-fg hover:bg-hover md:h-10">
                     <LogOut className="size-4" aria-hidden /> Sign out
                   </button>
                 </form>

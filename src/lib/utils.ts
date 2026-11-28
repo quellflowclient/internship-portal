@@ -36,6 +36,14 @@ export function formatDay(value: string | Date | null | undefined): string {
   return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: IST }).format(d);
 }
 
+/** Tue 8 – the narrow day used on phones next to a week heading (the month is in the heading). */
+export function formatDayShort(value: string | Date | null | undefined): string {
+  if (!value) return "—";
+  const d = typeof value === "string" ? new Date(value.length === 10 ? value + "T00:00:00+05:30" : value) : value;
+  if (Number.isNaN(d.getTime())) return "—";
+  return new Intl.DateTimeFormat("en-GB", { weekday: "short", day: "numeric", timeZone: IST }).format(d);
+}
+
 /** 27 Nov 2026 */
 export function formatDate(value: string | Date | null | undefined): string {
   if (!value) return "—";
