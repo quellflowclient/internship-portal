@@ -161,9 +161,9 @@ export function Card({ className, ...props }: React.HTMLAttributes<HTMLElement>)
 
 export function CardHeader({ title, info, actions, className }: { title: React.ReactNode; info?: string; actions?: React.ReactNode; className?: string }) {
   return (
-    <div className={cn("flex min-h-13 items-center justify-between gap-3 border-b border-line px-4 py-3", className)}>
-      <div className="flex min-w-0 items-center gap-1.5">
-        <h2 className="min-w-0 text-md font-semibold break-words">{title}</h2>
+    <div className={cn("flex min-h-13 flex-wrap items-center justify-between gap-3 border-b border-line px-4 py-3", className)}>
+      <div className="flex items-center gap-1.5">
+        <h2 className="text-md font-semibold break-words">{title}</h2>
         {info ? <InfoTip text={info} /> : null}
       </div>
       {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
